@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-China Rivalry at the Summer Olympics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    :root{
+      --usa:#1f4ed8;
+      --chn:#d32f2f;
+      --gold:#d4af37;
+      --silver:#b9b9b9;
+      --bronze:#c27a35;
+      --ink:#111;
+      --muted:#666;
+      --card:#ffffff;
+      --bg:#f6f7fb;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:"Manrope",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+    body.view-active{overflow:auto}
+    .wrap{max-width:1360px;margin:0 auto;padding:24px 22px 72px}
+    .card{background:var(--card);border-radius:18px;box-shadow:0 6px 22px rgba(0,0,0,.06);padding:18px 18px 16px;margin:14px 0}
+    .card h2{margin:0 0 8px;font-size:22px;letter-spacing:-0.2px}
+    .card p{margin:6px 0 10px;color:var(--muted);line-height:1.45}
+    .small{font-size:13px;color:var(--muted)}
+
+    .row{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
+    .row > *{flex:1}
+    .controls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:10px 0 8px}
+    label{font-weight:600}
+    input[type=range]{width:520px;max-width:100%}
+
+    .viz{width:100%;overflow:auto}
+    .viz svg{display:block}
+
+    .two-col{display:grid;grid-template-columns:1fr;gap:10px}
+    /* Keep pools stacked vertically for clarity (avoid side-by-side squeeze). */
+    @media (min-width: 980px){
+      .two-col{grid-template-columns:1fr}
+    }
+
+    .legend{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:6px;color:var(--muted);font-size:13px}
+    .swatch{width:12px;height:12px;border-radius:3px;display:inline-block;margin-right:6px}
+
+    .status{font-size:12px;color:var(--muted);margin-top:8px}
+    .view-toolbar{display:none;align-items:center;justify-content:space-between;gap:14px;margin:0 0 18px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.92);box-shadow:0 10px 28px rgba(0,0,0,.08);backdrop-filter:blur(8px)}
+    .view-toolbar-title{font-size:20px;font-weight:900;letter-spacing:-.02em}
+    .nav-btn{appearance:none;border:0;border-radius:999px;padding:11px 16px;background:#173b82;color:#fff;font-size:13px;font-weight:800;letter-spacing:.05em;cursor:pointer}
+    .view-card{display:none}
+    .view-card.is-active{display:block}
+    .home-screen{display:grid;gap:42px}
+    .home-stage{position:relative;min-height:clamp(420px,72vh,760px);border-radius:36px;overflow:hidden;background:
+      linear-gradient(118deg,rgba(5,10,18,.8) 0%,rgba(5,10,18,.46) 34%,rgba(5,10,18,.14) 58%,rgba(5,10,18,.7) 100%),
+      url('China-USA_Easy-Resize.com_.jpg') center top/cover no-repeat;
+      box-shadow:0 34px 76px rgba(8,16,34,.18)}
+    .home-stage::before{display:none}
+    .home-stage::after{content:"";position:absolute;inset:0;background:
+      radial-gradient(circle at 18% 78%,rgba(31,78,216,.24),transparent 34%),
+      radial-gradient(circle at 86% 18%,rgba(211,47,47,.22),transparent 28%),
+      repeating-linear-gradient(116deg,rgba(255,255,255,.06) 0 1px,transparent 1px 54px);
+      opacity:.26;pointer-events:none}
+    .home-shell{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;gap:24px;min-height:clamp(420px,72vh,760px);padding:34px}
+    .home-scene{display:flex;flex-direction:column;justify-content:flex-start;gap:20px;min-height:100%}
+    .home-scene-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
+    .home-kicker{display:inline-flex;align-items:center;gap:10px;padding:9px 14px;border-radius:999px;background:rgba(10,18,34,.44);backdrop-filter:blur(8px);font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#fff;box-shadow:0 10px 24px rgba(5,10,18,.16)}
+    .home-kicker::before{content:"";width:10px;height:10px;border-radius:999px;background:linear-gradient(135deg,var(--usa) 0%,var(--chn) 100%)}
+    .home-themes{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .home-theme-chip{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#fff;box-shadow:0 8px 22px rgba(5,10,18,.1)}
+    .home-dossier{align-self:flex-end;display:grid;gap:18px;max-width:540px;padding:30px 30px 28px;border-radius:32px;background:rgba(248,250,252,.88);backdrop-filter:blur(14px);box-shadow:0 28px 56px rgba(4,10,22,.22)}
+    .home-dossier-top{display:grid;gap:12px}
+    .home-dossier-label{display:inline-flex;align-items:center;justify-self:start;padding:7px 12px;border-radius:999px;background:#111827;color:#fff;font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
+    .home-title{margin:0;font-family:"Bebas Neue","Arial Narrow",sans-serif;font-size:clamp(42px,5vw,72px);font-weight:400;letter-spacing:.03em;line-height:.9;color:#111827}
+    .home-intro{margin:0;color:#475467;font-size:14px;line-height:1.72}
+    .home-hook{position:relative;margin:0;padding-left:18px;color:#111827;font-size:18px;font-weight:800;letter-spacing:-.02em;line-height:1.45}
+    .home-hook::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:6px;border-radius:999px;background:linear-gradient(180deg,#ef4444 0%,#d32f2f 100%)}
+    .home-content-shell{position:relative;padding:0;background:transparent;box-shadow:none}
+    .home-content-shell::before{display:none}
+    .home-content-stack{position:relative;z-index:1;display:grid;gap:24px}
+    .home-section-intro{display:grid;gap:10px;max-width:760px}
+    .home-section-kicker{display:inline-flex;align-items:center;justify-self:start;padding:8px 12px;border-radius:999px;background:#111827;color:#fff;font-size:11px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;box-shadow:0 8px 22px rgba(17,24,39,.12)}
+    .home-section-title{margin:0;font-size:28px;font-weight:900;letter-spacing:-.04em;color:#111827}
+    .home-section-copy{margin:0;color:#5b6472;font-size:14px;line-height:1.72;max-width:62ch}
+    .home-primary-routes{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(320px,.82fr);gap:20px;align-items:end}
+    .home-secondary-routes{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+    .home-route{appearance:none;border:0;position:relative;overflow:hidden;border-radius:28px;padding:20px 18px 18px;text-align:left;cursor:pointer;transition:transform .24s ease,box-shadow .24s ease,filter .24s ease}
+    .home-route:hover{transform:translateY(-4px);filter:saturate(1.05)}
+    .home-route:active{transform:translateY(-1px)}
+    .home-route::before{content:"";position:absolute;inset:0}
+    .home-route::after{content:"";position:absolute;right:-10px;top:-10px;width:96px;height:96px;border-radius:999px;background:radial-gradient(circle,rgba(255,255,255,.28) 0%,rgba(255,255,255,0) 72%);opacity:.6}
+    .route-content{position:relative;z-index:1;display:grid;gap:12px}
+    .route-index{display:inline-flex;align-items:center;justify-self:start;padding:6px 10px;border-radius:999px;font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
+    .route-title{display:block;font-size:24px;font-weight:900;letter-spacing:-.03em;line-height:1.02}
+    .route-note{display:block;font-size:13px;line-height:1.55;opacity:.9}
+    .home-route.primary-route{color:#fff;box-shadow:0 24px 42px rgba(17,24,39,.14)}
+    .home-route.primary-route::before{background:linear-gradient(145deg,#0e1f45 0%,#1856af 46%,#d22934 100%)}
+    .home-route.primary-route .route-index{background:rgba(255,255,255,.14);color:#fff}
+    .home-route.route-race{min-height:188px}
+    .home-route.route-count{min-height:172px;transform:translateY(24px);background:transparent}
+    .home-route.route-count:hover{transform:translateY(20px)}
+    .home-route.secondary-route{color:#111827;box-shadow:0 20px 36px rgba(17,24,39,.08)}
+    .home-route.secondary-route::before{background:linear-gradient(145deg,#fff7ec 0%,#ffffff 44%,#edf4ff 100%)}
+    .home-route.secondary-route .route-index{background:#f3f4f6;color:#667085}
+    .home-sports-grid{display:grid;grid-template-columns:1fr;gap:22px;align-items:start}
+    .home-sports-panel{position:relative;display:grid;gap:12px;padding:8px 8px 8px 26px;background:transparent;box-shadow:none}
+    .home-sports-panel::before{content:"";position:absolute;left:0;top:8px;bottom:8px;width:6px;border-radius:999px;background:linear-gradient(180deg,var(--usa) 0%,var(--chn) 100%)}
+    .home-sports-label{display:inline-flex;align-items:center;justify-self:start;padding:6px 10px;border-radius:999px;background:#eef2ff;color:#1d4ed8;font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
+    .home-sports-head{margin:0;font-size:20px;font-weight:900;letter-spacing:-.03em;color:#111827}
+    .home-sports{margin:0;color:#475467;font-size:14px;line-height:1.68}
+    .home-sport-catalog{display:grid;gap:18px;padding:4px 0 0;background:transparent;box-shadow:none}
+    .home-catalog-head{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:end;gap:12px 18px;max-width:980px}
+    .home-catalog-copy{display:grid;gap:8px;max-width:56ch}
+    .home-catalog-title{margin:0;font-size:18px;font-weight:900;letter-spacing:-.03em;color:#111827}
+    .home-catalog-note{margin:0;font-size:13px;line-height:1.55;color:#5b6472;max-width:48ch}
+    .home-catalog-count{display:inline-flex;align-items:center;justify-content:center;min-width:110px;padding:9px 12px;border-radius:999px;background:#fff;color:#111827;font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;box-shadow:0 12px 26px rgba(0,0,0,.12)}
+    .home-sport-field{position:relative;width:min(100%,980px);aspect-ratio:1/1;justify-self:center}
+    .home-sport-field svg{display:block;width:100%;height:100%}
+    .sport-link{cursor:pointer}
+    .sport-link:hover .sport-node circle{filter:brightness(1.12)}
+    .sport-node circle{opacity:.96}
+    .sport-node text{fill:#f8fbff;font-weight:800;letter-spacing:.01em;pointer-events:none}
+    .sport-node.sport-node-muted text{fill:rgba(248,251,255,.84)}
+    body.view-active .view-toolbar{display:flex}
+    body.view-active .home-screen{display:none}
+    .filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+    .filter-pills{display:flex;gap:8px;flex-wrap:wrap}
+    .filter-pill{appearance:none;border:0;border-radius:999px;padding:9px 14px;background:#fff;color:#333;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 10px 20px rgba(17,24,39,.06);transition:background .2s ease,color .2s ease,box-shadow .2s ease,transform .2s ease}
+    .filter-pill:hover{transform:translateY(-1px)}
+    .filter-pill.is-active{background:#111;color:#fff;box-shadow:0 14px 24px rgba(17,24,39,.14)}
+    .mode-summary{margin:0 0 8px;color:var(--muted)}
+
+    /* tooltip */
+    .tt{position:fixed;pointer-events:none;z-index:50;background:#111;color:#fff;padding:10px 10px;border-radius:10px;font-size:12px;line-height:1.25;box-shadow:0 10px 22px rgba(0,0,0,.25);opacity:0;transform:translate(-50%,-110%)}
+    .tt .k{color:#cfcfcf}
+
+    @media (max-width: 860px){
+      .home-shell{padding:24px}
+      .home-stage{min-height:auto}
+      .home-shell{min-height:60vh}
+      .home-dossier{max-width:none}
+      .home-primary-routes{grid-template-columns:1fr 1fr}
+      .home-sports-grid{grid-template-columns:1fr}
+      .home-catalog-head{grid-template-columns:1fr}
+      .home-route.route-count{transform:translateY(0)}
+      .home-route.route-count:hover{transform:translateY(-4px)}
+    }
+    @media (max-width: 640px){
+      .wrap{padding:14px 16px 46px}
+      .home-stage{border-radius:26px}
+      .home-shell{padding:16px}
+      .home-themes{justify-content:flex-start}
+      .home-title{font-size:clamp(34px,13vw,54px)}
+      .home-dossier{padding:20px;border-radius:24px}
+      .home-section-title{font-size:24px}
+      .home-hook{font-size:16px}
+      .home-primary-routes{grid-template-columns:1fr}
+      .home-secondary-routes{grid-template-columns:1fr}
+      .home-sport-field{width:min(100%,640px)}
+      .home-route{padding:18px 16px 16px}
+      .route-title{font-size:21px}
+      .view-toolbar{align-items:flex-start;flex-direction:column}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <section id="homeScreen" class="home-screen" aria-label="Main screen">
+    <div class="home-stage">
+      <div class="home-shell">
+        <div class="home-scene">
+          <div class="home-scene-top">
+            <div class="home-kicker">CSC316 Final Project</div>
+            <div class="home-themes" aria-label="Story themes">
+              <span class="home-theme-chip">Historical Dominator</span>
+              <span class="home-theme-chip">Rising Challenger</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="home-dossier">
+          <div class="home-dossier-top">
+            <div class="home-dossier-label">Main Screen</div>
+            <div class="home-title">USA vs China on the Olympic Stage</div>
+            <p class="home-intro">
+              This story follows the shift from long US control to a rivalry that becomes measurable across overall medal scale, historical medal count, swimming pressure, and diving strength.
+            </p>
+            <p class="home-hook">
+              One country sets the Olympic standard. The other rises fast enough to turn the story into a direct US-China contest.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="home-content-shell">
+      <div class="home-content-stack">
+        <div class="home-section-intro">
+          <div class="home-section-kicker">Story routes</div>
+          <h2 class="home-section-title">Choose how to enter the rivalry</h2>
+          <p class="home-section-copy">
+            Start with the medal race scale or the historical count view, then move into the sports where US-China pressure becomes most legible.
+          </p>
+        </div>
+
+        <div class="home-primary-routes">
+          <button class="home-route primary-route route-race intro-nav-btn" type="button" data-target="goldCard">
+            <span class="route-content">
+              <span class="route-index">Race Scale</span>
+              <span class="route-title">US vs China Medal Race Scale</span>
+              <span class="route-note">Read the rivalry through one shared balance scale and switch between total, gold, silver, and bronze event medals.</span>
+            </span>
+          </button>
+          <button class="home-route primary-route route-count intro-nav-btn" type="button" data-target="dominanceCard">
+            <span class="route-content">
+              <span class="route-index">Count Plot</span>
+              <span class="route-title">US vs China Medal Count</span>
+              <span class="route-note">Trace when the broader medal gap starts to tighten.</span>
+            </span>
+          </button>
+        </div>
+
+        <div class="home-sports-grid">
+          <div class="home-sports-panel">
+            <div class="home-sports-label">Sport fronts</div>
+            <h2 class="home-sports-head">Where the rivalry becomes visible</h2>
+            <p class="home-sports">
+              The United States carries the broader medal machine and deep swimming history. China is especially forceful in diving and increasingly credible in the pool, which turns the medal race into direct sport-by-sport pressure.
+            </p>
+          </div>
+
+          <div class="home-sport-catalog">
+            <div class="home-catalog-head">
+              <div class="home-catalog-copy">
+                <div class="home-sports-label">Full field</div>
+                <h2 class="home-catalog-title">Summer sports across the Olympic stage</h2>
+                <p class="home-catalog-note">
+                  The rivalry sits inside a much larger field. This catalog shows every Summer sport category found in the dataset.
+                </p>
+              </div>
+              <div id="homeSportCount" class="home-catalog-count">0 sports</div>
+            </div>
+            <div id="homeSportField" class="home-sport-field" aria-label="Summer sport categories"></div>
+          </div>
+        </div>
+
+        <div class="home-secondary-routes">
+          <button class="home-route secondary-route intro-nav-btn" type="button" data-target="swimmingCard">
+            <span class="route-content">
+              <span class="route-index">Pool pressure</span>
+              <span class="route-title">US vs China Swimming</span>
+              <span class="route-note">See the rivalry lane by lane through aligned medal placement.</span>
+            </span>
+          </button>
+          <button class="home-route secondary-route intro-nav-btn" type="button" data-target="divingCard">
+            <span class="route-content">
+              <span class="route-index">Board control</span>
+              <span class="route-title">US vs China Diving</span>
+              <span class="route-note">Read the mirrored medal flow where China’s edge becomes clearer.</span>
+            </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div id="viewToolbar" class="view-toolbar">
+    <button id="backToMenuBtn" class="nav-btn" type="button">Main Screen</button>
+    <div id="viewToolbarTitle" class="view-toolbar-title">Visualization</div>
+  </div>
+
+  <div class="card view-card" id="dominanceCard" data-view-title="US Historical Dominance">
+    <h2>1) Medals number — USA dominance, and who’s closest each year</h2>
+    <p>
+      The stacked area shows <b>USA event‑medal volume</b> over time (team events counted once per event, split into gold/silver/bronze).
+      When the dashed “challenger” line is on, it tracks the <b>closest non‑USA team</b> each year — making it easy to spot
+      when China starts closing the gap after the 1980s.
+    </p>
+    <div class="legend" style="align-items:center">
+      <span><span class="swatch" style="background:var(--gold)"></span>Gold</span>
+      <span><span class="swatch" style="background:var(--silver)"></span>Silver</span>
+      <span><span class="swatch" style="background:var(--bronze)"></span>Bronze</span>
+      <label class="legend-item" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
+        <input id="toggleChallenger" type="checkbox" checked style="transform:translateY(1px)" />
+        <span class="swatch" style="background:#111"></span>
+        <span>Closest challenger (dashed)</span>
+      </label>
+    </div>
+    <div id="viz1" class="viz"></div>
+    <div class="small">Note: this panel uses <b>event medals</b> (team events counted once per event; derived by de‑duplicating athlete rows).</div>
+  </div>
+
+  <div class="card view-card" id="swimmingCard" data-view-title="China vs US Swimming">
+    <h2>2) Lanes (swimming) — China catching up in the pool</h2>
+    <p>
+      Each dot is one <b>swimming medal (athlete‑medal)</b>. We place medals into 8 lanes using a center‑lane emphasis rule (lanes 4/5 first), cycling outward to keep the composition stable while you scrub years.
+      Use the slider to scrub time.
+    </p>
+    <div class="controls">
+      <label>Olympic year:</label>
+      <div><b id="swimYearLabel">—</b></div>
+      <input id="yearSlider" type="range" />
+      <div class="small">(drag)</div>
+    </div>
+    <div id="gapText" class="small"></div>
+    <div class="two-col">
+      <div>
+        <div class="small"><b id="swimUSALabel">USA • Swimming medals: 0</b></div>
+        <div id="swimUSA" class="viz"></div>
+      </div>
+      <div>
+        <div class="small"><b id="swimCHNLabel">CHN • Swimming medals: 0</b></div>
+        <div id="swimCHN" class="viz"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card view-card" id="divingCard" data-view-title="China vs US Diving">
+    <h2>3) Diving — medal flow as a wave (CHN above water, USA below)</h2>
+    <p>
+      Diving medals per year are mirrored around the “waterline” (0). The filled shapes read like a wave.
+      Dots are individual medals (gold/silver/bronze), stacked within each year.
+      The diver is a small narrative cue: “the impact point” is where the story starts to change.
+    </p>
+    <div id="divingFlow" class="viz"></div>
+    <div class="small">This panel uses <b>athlete‑medals</b> so you can see the “medal flow” texture over time.</div>
+  </div>
+
+  <div class="card view-card" id="goldCard" data-view-title="China vs US Medal Race Scale">
+    <h2>4) Medal race scale (USA vs CHN)</h2>
+    <p>
+      A balance scale summarizes who is ahead in the selected <b>event-medal race</b> up to the selected year.
+      Use the filters to switch between <b>total, gold, silver, and bronze</b>, while keeping the same visual structure.
+    </p>
+    <div class="filter-row">
+      <label>Race filter:</label>
+      <div class="filter-pills" id="raceModeFilters">
+        <button class="filter-pill gold-filter-btn is-active" type="button" data-mode="Total">Total medals</button>
+        <button class="filter-pill gold-filter-btn" type="button" data-mode="Gold">Gold medals</button>
+        <button class="filter-pill gold-filter-btn" type="button" data-mode="Silver">Silver medals</button>
+        <button class="filter-pill gold-filter-btn" type="button" data-mode="Bronze">Bronze medals</button>
+      </div>
+    </div>
+    <div id="raceModeSummary" class="small mode-summary">Showing cumulative total event medals for USA vs CHN.</div>
+
+    <div class="controls">
+      <label>Scrub year:</label>
+      <input id="rivalYearSlider" type="range" />
+      <div>Selected: <b id="rivalYearLabel">—</b></div>
+    </div>
+
+    <div id="viz4" class="viz"></div>
+    <div class="small">Important: every filter here uses <b>event medals</b> (team counted once per event), including the total medal view.</div>
+  </div>
+
+</div>
+
+<div id="tooltip" class="tt"></div>
+
+<script src="visual.js"></script>
+</body>
+</html>

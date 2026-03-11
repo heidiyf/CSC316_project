@@ -71,6 +71,15 @@
     .home-kicker::before{content:"";width:10px;height:10px;border-radius:999px;background:linear-gradient(135deg,var(--usa) 0%,var(--chn) 100%)}
     .home-themes{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
     .home-theme-chip{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#fff;box-shadow:0 8px 22px rgba(5,10,18,.1)}
+    
+    /* Perspective Toggle Styles */
+    .perspective-toggle{display:flex;gap:8px;align-items:center;padding:6px;border-radius:999px;background:rgba(255,255,255,.18);backdrop-filter:blur(10px);box-shadow:0 8px 20px rgba(5,10,18,.12)}
+    .perspective-btn{appearance:none;border:0;padding:10px 18px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .3s ease;background:transparent;color:rgba(255,255,255,.7)}
+    .perspective-btn:hover{color:#fff;background:rgba(255,255,255,.08)}
+    .perspective-btn.active{background:#fff;color:#111;box-shadow:0 4px 12px rgba(0,0,0,.15)}
+    .perspective-btn.usa-view.active{color:var(--usa)}
+    .perspective-btn.china-view.active{color:var(--chn)}
+    
     .home-dossier{align-self:flex-end;display:grid;gap:18px;max-width:540px;padding:30px 30px 28px;border-radius:32px;background:rgba(248,250,252,.88);backdrop-filter:blur(14px);box-shadow:0 28px 56px rgba(4,10,22,.22)}
     .home-dossier-top{display:grid;gap:12px}
     .home-dossier-label{display:inline-flex;align-items:center;justify-self:start;padding:7px 12px;border-radius:999px;background:#111827;color:#fff;font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
@@ -174,6 +183,10 @@
         <div class="home-scene">
           <div class="home-scene-top">
             <div class="home-kicker">CSC316 Final Project</div>
+            <div class="perspective-toggle" aria-label="Choose your perspective">
+              <button class="perspective-btn usa-view active" data-perspective="usa" type="button">🇺🇸 Team USA</button>
+              <button class="perspective-btn china-view" data-perspective="china" type="button">🇨🇳 Team China</button>
+            </div>
             <div class="home-themes" aria-label="Story themes">
               <span class="home-theme-chip">Historical Dominator</span>
               <span class="home-theme-chip">Rising Challenger</span>

@@ -1557,3 +1557,104 @@ function renderGoldRace(data) {
   slider.addEventListener('input', update);
   update();
 }
+
+// ---------------------------
+// Perspective Toggle Feature
+// ---------------------------
+(function initPerspectiveToggle() {
+  const perspectiveBtns = document.querySelectorAll('.perspective-btn');
+  let currentPerspective = 'usa'; // default
+  
+  if (perspectiveBtns.length === 0) return;
+  
+  perspectiveBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const perspective = btn.dataset.perspective;
+      if (perspective === currentPerspective) return;
+      
+      // Update active state
+      perspectiveBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentPerspective = perspective;
+      
+      // Update content based on perspective
+      updatePerspectiveContent(perspective);
+    });
+  });
+  
+  function updatePerspectiveContent(perspective) {
+    const title = document.querySelector('.home-title');
+    const intro = document.querySelector('.home-intro');
+    const hook = document.querySelector('.home-hook');
+    const themes = document.querySelectorAll('.home-theme-chip');
+    
+    if (!title || !intro || !hook) return;
+    
+    if (perspective === 'usa') {
+      // USA perspective - focus on defending dominance
+      title.textContent = 'USA vs China on the Olympic Stage';
+      intro.textContent = 'This story follows the shift from long US control to a rivalry that becomes measurable across overall medal scale, historical medal count, swimming pressure, and diving strength.';
+      hook.textContent = 'One country sets the Olympic standard. The other rises fast enough to turn the story into a direct US-China contest.';
+      
+      if (themes.length >= 2) {
+        themes[0].textContent = 'Historical Dominator';
+        themes[1].textContent = 'Rising Challenger';
+      }
+      
+      // Update visualization labels if needed
+      updateVisualizationLabels('usa');
+      
+    } else {
+      // China perspective - focus on rising challenge
+      title.textContent = 'China vs USA on the Olympic Stage';
+      intro.textContent = "This story follows China's remarkable rise from emerging competitor to Olympic powerhouse, challenging America's long-standing dominance across medal counts, swimming excellence, and diving supremacy.";
+      hook.textContent = "One country challenges the status quo. The other must defend its position as the rivalry intensifies across every Olympic stage.";
+      
+      if (themes.length >= 2) {
+        themes[0].textContent = 'Rising Powerhouse';
+        themes[1].textContent = 'Defending Champion';
+      }
+      
+      // Update visualization labels if needed
+      updateVisualizationLabels('china');
+    }
+    
+    console.log(`✓ Perspective switched to: ${perspective.toUpperCase()}`);
+  }
+  
+  function updateVisualizationLabels(perspective) {
+    // Update view card titles if they exist
+    const dominanceCard = document.querySelector('#dominanceCard h2');
+    const swimmingCard = document.querySelector('#swimmingCard h2');
+    const divingCard = document.querySelector('#divingCard h2');
+    const goldCard = document.querySelector('#goldCard h2');
+    
+    if (perspective === 'usa') {
+      if (dominanceCard) {
+        dominanceCard.textContent = '1) Medals number — USA dominance, and who\'s closest each year';
+      }
+      if (swimmingCard) {
+        swimmingCard.textContent = '2) Lanes (swimming) — China catching up in the pool';
+      }
+      if (divingCard) {
+        divingCard.textContent = '3) Diving — medal flow as a wave (CHN above water, USA below)';
+      }
+      if (goldCard) {
+        goldCard.textContent = '4) Medal race scale (USA vs CHN)';
+      }
+    } else {
+      if (dominanceCard) {
+        dominanceCard.textContent = '1) Medals number — China\'s rise, challenging the leader';
+      }
+      if (swimmingCard) {
+        swimmingCard.textContent = '2) Lanes (swimming) — China\'s progress in the pool';
+      }
+      if (divingCard) {
+        divingCard.textContent = '3) Diving — China\'s strength as a wave (CHN leads above water)';
+      }
+      if (goldCard) {
+        goldCard.textContent = '4) Medal race scale (CHN vs USA)';
+      }
+    }
+  }
+})();

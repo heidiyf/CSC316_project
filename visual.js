@@ -193,9 +193,9 @@ const statusEl = safeNode('#status');
 initIntroTransition();
 
 Promise.all([
-  d3.csv('olympics_dataset.csv', d3.autoType)
+  d3.csv('data/olympics_dataset_cleaned.csv', d3.autoType)
 ]).then(([data]) => {
-  if (statusEl) statusEl.text(`Loaded olympics_dataset.csv — ${fmt(data.length)} rows.`);
+  if (statusEl) statusEl.text(`Loaded olympics_dataset_cleaned.csv — ${fmt(data.length)} rows.`);
 
   // normalize fields
   data.forEach(d => {
@@ -205,7 +205,7 @@ Promise.all([
   renderHomeSportCatalog(data);
   renderDominance(data);
   renderSwimmingPools(data);
-  renderDivingFlow(data);
+  // renderDivingFlow(data); // 由 diving.js 独立模块处理
   renderGoldRace(data);
 }).catch(err => {
   console.error(err);

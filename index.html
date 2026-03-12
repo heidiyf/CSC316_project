@@ -51,7 +51,7 @@
     .view-toolbar{display:none;align-items:center;justify-content:space-between;gap:14px;margin:0 0 18px;padding:12px 14px;border-radius:16px;background:rgba(255,255,255,.92);box-shadow:0 10px 28px rgba(0,0,0,.08);backdrop-filter:blur(8px)}
     .view-toolbar-title{font-size:20px;font-weight:900;letter-spacing:-.02em}
     .nav-btn{appearance:none;border:0;border-radius:999px;padding:11px 16px;background:#173b82;color:#fff;font-size:13px;font-weight:800;letter-spacing:.05em;cursor:pointer}
-    .view-card{display:none}
+    .view-card{display:block} /* 显示所有卡片 */
     .view-card.is-active{display:block}
     .home-screen{display:grid;gap:42px}
     .home-stage{position:relative;min-height:clamp(420px,72vh,760px);border-radius:36px;overflow:hidden;background:
@@ -374,5 +374,6 @@
 <div id="tooltip" class="tt"></div>
 
 <script src="visual.js"></script>
+<script src="diving.js"></script>
 </body>
 </html>

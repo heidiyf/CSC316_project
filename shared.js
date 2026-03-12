@@ -21,13 +21,13 @@
 // Theme
 // ---------------------------
 const COLORS = {
-  usa: getCssVar('--usa', '#1f4ed8'),
-  chn: getCssVar('--chn', '#d32f2f'),
-  gold: getCssVar('--gold', '#d4af37'),
-  silver: getCssVar('--silver', '#b9b9b9'),
-  bronze: getCssVar('--bronze', '#c27a35'),
-  ink: getCssVar('--ink', '#111'),
-  muted: getCssVar('--muted', '#666'),
+  usa: getCssVar('--usa', '#1a6cff'),
+  chn: getCssVar('--chn', '#e62020'),
+  gold: getCssVar('--gold', '#f0c040'),
+  silver: getCssVar('--silver', '#c8c8c8'),
+  bronze: getCssVar('--bronze', '#d4874a'),
+  ink: getCssVar('--ink', '#e8f0ff'),
+  muted: getCssVar('--muted', '#7a93b8'),
 };
 
 const MEDAL_ORDER = ['Gold', 'Silver', 'Bronze'];
@@ -174,98 +174,4 @@ Promise.all([
   console.error('[shared.js] Failed to load data:', err);
 });
 
-// ---------------------------
-// Accordion — Swimming / Diving
-// ---------------------------
-(function initAccordion() {
-  const tabs = document.querySelectorAll('.acc-tab[data-panel]');
-  if (!tabs.length) return;
-
-  function openPanel(panelId) {
-    tabs.forEach(t => {
-      const isTarget = t.dataset.panel === panelId;
-      t.classList.toggle('is-active', isTarget);
-      t.setAttribute('aria-selected', String(isTarget));
-      const panel = document.getElementById(t.dataset.panel);
-      if (panel) panel.classList.toggle('is-open', isTarget);
-    });
-  }
-
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => openPanel(tab.dataset.panel));
-  });
-
-  // Scroll-nav links with data-open-panel (e.g. "Swimming" / "Diving" nav anchors)
-  document.querySelectorAll('a[data-open-panel]').forEach(link => {
-    link.addEventListener('click', () => {
-      openPanel(link.dataset.openPanel);
-    });
-  });
-})();
-
-
-// Switches hero copy + viz titles between USA / China viewpoint
-// ---------------------------
-(function initPerspectiveToggle() {
-  const btns = document.querySelectorAll('.perspective-btn');
-  if (!btns.length) return;
-  let current = 'usa';
-
-  // copy maps — keyed by perspective
-  const COPY = {
-    usa: {
-      heroTitle:    'USA vs China on the Olympic Stage',
-      heroIntro:    'This story follows the shift from long US control to a rivalry that becomes measurable across overall medal scale, historical medal count, swimming pressure, and diving strength.',
-      heroHook:     'One country sets the Olympic standard. The other rises fast enough to turn the story into a direct US-China contest.',
-      chip0:        'Historical Dominator',
-      chip1:        'Rising Challenger',
-      rivalryTitle: 'Where the rivalry becomes visible',
-      rivalryCopy:  'The United States carries the broader medal machine and deep swimming history. China is especially forceful in diving and increasingly credible in the pool — turning the medal race into direct sport-by-sport pressure.',
-      dominanceTitle: 'Medals — USA dominance, and who\'s closest each year',
-      swimmingTitle:  'Swimming lanes — China catching up in the pool',
-      divingTitle:    'Diving — medal flow as a wave (CHN above water, USA below)',
-      goldTitle:      'Medal race scale (USA vs CHN)',
-    },
-    china: {
-      heroTitle:    'China vs USA on the Olympic Stage',
-      heroIntro:    "This story follows China's remarkable rise from emerging competitor to Olympic powerhouse, challenging America's long-standing dominance across medal counts, swimming excellence, and diving supremacy.",
-      heroHook:     "One country challenges the status quo. The other must defend its position as the rivalry intensifies across every Olympic stage.",
-      chip0:        'Rising Powerhouse',
-      chip1:        'Defending Champion',
-      rivalryTitle: 'Where China\'s rise becomes unmistakable',
-      rivalryCopy:  'China\'s surge in diving is unmatched, and its growing presence in the pool signals a broader shift. The medal race now runs through every sport where the two nations directly clash.',
-      dominanceTitle: 'Medals — China\'s rise, closing on the leader',
-      swimmingTitle:  'Swimming lanes — China\'s progress in the pool',
-      divingTitle:    'Diving — China\'s dominance above the waterline',
-      goldTitle:      'Medal race scale (CHN vs USA)',
-    },
-  };
-
-  function applyPerspective(p) {
-    const c = COPY[p];
-    // helper: set textContent if element exists
-    const set = (id, text) => { const el = document.getElementById(id); if (el) el.textContent = text; };
-    set('heroTitle',       c.heroTitle);
-    set('heroIntro',       c.heroIntro);
-    set('heroHook',        c.heroHook);
-    set('themeChip0',      c.chip0);
-    set('themeChip1',      c.chip1);
-    set('rivalryTitle',    c.rivalryTitle);
-    set('rivalryCopy',     c.rivalryCopy);
-    set('dominanceTitle',  c.dominanceTitle);
-    set('swimmingTitle',   c.swimmingTitle);
-    set('divingTitle',     c.divingTitle);
-    set('goldTitle',       c.goldTitle);
-  }
-
-  btns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const p = btn.dataset.perspective;
-      if (p === current) return;
-      current = p;
-      btns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      applyPerspective(p);
-    });
-  });
-})();
+// Accordion and perspective toggle are handled inline in index.html

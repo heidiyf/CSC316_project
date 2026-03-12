@@ -96,9 +96,13 @@ function renderDominance(data) {
     .nice()
     .range([height, 0]);
 
+  // dark theme: style axes
+  svg.selectAll('text').style('fill', '#7a93b8').style('font-family', "'DM Sans', sans-serif");
+  svg.selectAll('line, path.domain').style('stroke', 'rgba(100,160,255,.2)');
+
   // grid
   g.append('g')
-    .attr('opacity', 0.25)
+    .attr('opacity', 0.18)
     .call(d3.axisLeft(y).ticks(6).tickSize(-width).tickFormat(''))
     .selectAll('.domain').remove();
 
@@ -130,10 +134,10 @@ function renderDominance(data) {
     .attr('class', 'challenger')
     .datum(seriesData)
     .attr('fill', 'none')
-    .attr('stroke', COLORS.ink)
+    .attr('stroke', 'rgba(122,180,255,.7)')
     .attr('stroke-width', 2)
     .attr('stroke-dasharray', '6,6')
-    .attr('opacity', 0.75)
+    .attr('opacity', 0.9)
     .attr('d', line);
 
   // Checkbox (in the legend) toggles whether the closest-challenger line is visible.
@@ -205,4 +209,3 @@ function renderDominance(data) {
 
   // Wire up the checkbox toggle once per render.
 }
-

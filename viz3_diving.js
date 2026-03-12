@@ -90,6 +90,10 @@ function renderDivingFlow(data) {
     .call(d3.axisLeft(y).ticks(10).tickFormat(d => Math.abs(d)))
     .call(g => g.selectAll('.domain').remove());
 
+  // dark theme axes
+  svg.selectAll('text').style('fill', '#7a93b8').style('font-family', "'DM Sans', sans-serif");
+  svg.selectAll('line, path.domain').style('stroke', 'rgba(100,160,255,.2)');
+
   g.append('text')
     .attr('x', 0)
     .attr('y', -6)
@@ -273,4 +277,3 @@ function escapeHtml(s) {
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;');
 }
-

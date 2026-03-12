@@ -3,362 +3,403 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>US–China Rivalry at the Summer Olympics</title>
+  <title>US–China Olympic Rivalry</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <style>
-    /* ── Design tokens ─────────────────────────────────────────── */
-    :root{
-      --usa:#1f4ed8; --chn:#d32f2f;
-      --gold:#d4af37; --silver:#b9b9b9; --bronze:#c27a35;
-      --ink:#111; --muted:#666; --card:#ffffff; --bg:#f6f7fb;
+    :root {
+      --usa:#1a6cff; --usa-glow:rgba(26,108,255,.45);
+      --chn:#e62020; --chn-glow:rgba(230,32,32,.45);
+      --gold:#f0c040; --silver:#c8c8c8; --bronze:#d4874a;
+      --ink:#e8f0ff; --muted:#7a93b8;
+      --card:rgba(12,28,58,.72); --card-border:rgba(100,160,255,.14);
+      --bg:#040d1f; --ocean-deep:#020912; --ocean-mid:#061428;
     }
-
-    /* ── Reset / base ──────────────────────────────────────────── */
-    *{box-sizing:border-box}
+    *,*::before,*::after{box-sizing:border-box}
     html{scroll-behavior:smooth}
-    body{margin:0;font-family:"Manrope",system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+    body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden}
 
-    /* ── Layout ────────────────────────────────────────────────── */
-    .wrap{max-width:1360px;margin:0 auto;padding:24px 22px 96px}
+    /* ── OCEAN BG ── */
+    #ocean-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+    #ocean-bg canvas{position:absolute;inset:0;width:100%;height:100%}
+    .depth-gradient{position:fixed;inset:0;z-index:0;pointer-events:none;
+      background:radial-gradient(ellipse 120% 60% at 15% 10%,rgba(26,108,255,.06) 0%,transparent 60%),
+                 radial-gradient(ellipse 80% 40% at 85% 5%,rgba(230,32,32,.05) 0%,transparent 50%),
+                 linear-gradient(180deg,var(--ocean-deep) 0%,var(--ocean-mid) 30%,var(--ocean-mid) 70%,var(--ocean-deep) 100%)}
 
-    /* ── Card ──────────────────────────────────────────────────── */
-    .card{background:var(--card);border-radius:18px;box-shadow:0 6px 22px rgba(0,0,0,.06);padding:28px 28px 22px}
-    .card h2{margin:0 0 8px;font-size:22px;letter-spacing:-.2px}
-    .card p{margin:6px 0 10px;color:var(--muted);line-height:1.45}
-    .small{font-size:13px;color:var(--muted)}
+    /* ── SCROLL PROGRESS ── */
+    #scroll-progress{position:fixed;top:0;left:0;width:0%;height:3px;background:linear-gradient(90deg,var(--usa),#00cfff,var(--chn));z-index:1000;transition:width .1s linear}
 
-    /* ── Viz section — each chart gets its own scroll-target ───── */
-    .viz-section{display:flex;flex-direction:column;gap:0;scroll-margin-top:28px}
-    .viz-section+.viz-section{margin-top:56px}
+    /* ── STICKY NAV ── */
+    #sticky-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:10px 28px;background:rgba(4,13,31,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(100,160,255,.1);transform:translateY(-100%);transition:transform .4s ease}
+    #sticky-nav.visible{transform:translateY(0)}
+    .nav-brand{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.08em;color:rgba(232,240,255,.6)}
+    .nav-links{display:flex;gap:6px}
+    .nav-link{padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:all .2s;border:1px solid transparent}
+    .nav-link:hover{color:var(--ink);border-color:rgba(100,160,255,.2);background:rgba(26,108,255,.1)}
+    .nav-link.active{color:#fff;background:rgba(26,108,255,.18);border-color:rgba(26,108,255,.3)}
 
-    /* numbered eyebrow above each card */
-    .section-eyebrow{display:flex;align-items:center;gap:12px;margin-bottom:14px}
-    .section-num{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:999px;background:#111827;color:#fff;font-size:13px;font-weight:900;flex-shrink:0}
-    .section-label{font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#6b7280}
+    /* ── PERSPECTIVE FLOAT ── */
+    .perspective-float{position:fixed;bottom:28px;right:28px;z-index:200;display:flex;flex-direction:column;gap:0;border-radius:18px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 0 1px rgba(100,160,255,.15);backdrop-filter:blur(20px)}
+    .perspective-float-label{padding:7px 14px 5px;background:rgba(10,28,60,.92);font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-align:center}
+    .perspective-btn-row{display:flex}
+    .perspective-btn{appearance:none;border:0;padding:11px 18px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .3s;background:rgba(10,28,60,.92);color:rgba(255,255,255,.45);flex:1}
+    .perspective-btn:hover{color:rgba(255,255,255,.8)}
+    .perspective-btn.usa-view.active{background:linear-gradient(135deg,rgba(26,108,255,.35),rgba(26,108,255,.2));color:#7ab4ff;box-shadow:inset 0 1px 0 rgba(100,180,255,.2)}
+    .perspective-btn.china-view.active{background:linear-gradient(135deg,rgba(230,32,32,.35),rgba(230,32,32,.2));color:#ff8080;box-shadow:inset 0 1px 0 rgba(255,100,100,.2)}
+    .perspective-flash{position:fixed;inset:0;z-index:900;pointer-events:none;opacity:0;transition:opacity .2s}
+    .perspective-flash.show{opacity:1}
 
-    /* ── Controls / legend ─────────────────────────────────────── */
-    .controls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:10px 0 8px}
-    label{font-weight:600}
-    input[type=range]{width:520px;max-width:100%}
-    .legend{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin-top:6px;color:var(--muted);font-size:13px}
-    .swatch{width:12px;height:12px;border-radius:3px;display:inline-block;margin-right:6px}
+    /* ── LAYOUT ── */
+    .wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:0 22px 120px}
 
-    /* ── Viz host ───────────────────────────────────────────────── */
-    .viz{width:100%;overflow:auto}
-    .viz svg{display:block}
-    .two-col{display:grid;grid-template-columns:1fr;gap:10px}
+    /* ── HERO ── */
+    .hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;position:relative;text-align:center;padding:80px 22px 100px;overflow:hidden}
+    .hero-bg-img{position:absolute;inset:0;background:url('China-USA_Easy-Resize_com_.jpg') center/cover no-repeat;opacity:.08;filter:blur(2px) saturate(.4)}
+    .hero-bg-overlay{position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% 40%,rgba(26,108,255,.07) 0%,transparent 70%),linear-gradient(180deg,transparent 0%,var(--bg) 100%)}
 
-    /* ── Filter pills ───────────────────────────────────────────── */
-    .filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
-    .filter-pills{display:flex;gap:8px;flex-wrap:wrap}
-    .filter-pill{appearance:none;border:0;border-radius:999px;padding:9px 14px;background:#fff;color:#333;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 10px 20px rgba(17,24,39,.06);transition:background .2s,color .2s,box-shadow .2s,transform .2s}
-    .filter-pill:hover{transform:translateY(-1px)}
-    .filter-pill.is-active{background:#111;color:#fff;box-shadow:0 14px 24px rgba(17,24,39,.14)}
-    .mode-summary{margin:0 0 8px;color:var(--muted)}
+    .hero-kicker{position:relative;display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:999px;border:1px solid rgba(26,108,255,.3);background:rgba(26,108,255,.08);font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#7ab4ff;margin-bottom:28px;animation:fadeUp .8s .1s both}
+    .pulse-dot{width:6px;height:6px;border-radius:50%;background:#7ab4ff;animation:pulseRing 2s infinite}
+    @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(122,180,255,.6)}70%{box-shadow:0 0 0 7px rgba(122,180,255,0)}100%{box-shadow:0 0 0 0 rgba(122,180,255,0)}}
 
-    /* ── Tooltip ────────────────────────────────────────────────── */
-    .tt{position:fixed;pointer-events:none;z-index:50;background:#111;color:#fff;padding:10px;border-radius:10px;font-size:12px;line-height:1.25;box-shadow:0 10px 22px rgba(0,0,0,.25);opacity:0;transform:translate(-50%,-110%)}
-    .tt .k{color:#cfcfcf}
+    .hero-eyebrow{position:relative;display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:18px;animation:fadeUp .8s .2s both}
+    .hero-flag{font-size:28px}
+    .hero-vs{font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.3em;color:var(--muted)}
 
-    /* ═══════════════════════════════════════════════════════════
-       HERO STAGE
-    ═══════════════════════════════════════════════════════════ */
-    .home-stage{
-      position:relative;
-      min-height:clamp(420px,72vh,760px);
-      border-radius:36px;overflow:hidden;
-      background:
-        linear-gradient(118deg,rgba(5,10,18,.8) 0%,rgba(5,10,18,.46) 34%,rgba(5,10,18,.14) 58%,rgba(5,10,18,.7) 100%),
-        url('China-USA_Easy-Resize.com_.jpg') center top/cover no-repeat;
-      box-shadow:0 34px 76px rgba(8,16,34,.18);
-      margin-bottom:52px;
-    }
-    .home-stage::after{content:"";position:absolute;inset:0;background:radial-gradient(circle at 18% 78%,rgba(31,78,216,.24),transparent 34%),radial-gradient(circle at 86% 18%,rgba(211,47,47,.22),transparent 28%),repeating-linear-gradient(116deg,rgba(255,255,255,.06) 0 1px,transparent 1px 54px);opacity:.26;pointer-events:none}
-    .home-shell{position:relative;z-index:1;display:flex;flex-direction:column;justify-content:space-between;gap:24px;min-height:clamp(420px,72vh,760px);padding:34px}
-    .home-scene-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;flex-wrap:wrap}
-    .home-kicker{display:inline-flex;align-items:center;gap:10px;padding:9px 14px;border-radius:999px;background:rgba(10,18,34,.44);backdrop-filter:blur(8px);font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;color:#fff;box-shadow:0 10px 24px rgba(5,10,18,.16)}
-    .home-kicker::before{content:"";width:10px;height:10px;border-radius:999px;background:linear-gradient(135deg,var(--usa) 0%,var(--chn) 100%)}
-    .home-themes{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
-    .home-theme-chip{display:inline-flex;align-items:center;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#fff;box-shadow:0 8px 22px rgba(5,10,18,.1)}
-    .perspective-toggle{display:flex;gap:8px;align-items:center;padding:6px;border-radius:999px;background:rgba(255,255,255,.18);backdrop-filter:blur(10px);box-shadow:0 8px 20px rgba(5,10,18,.12)}
-    .perspective-btn{appearance:none;border:0;padding:10px 18px;border-radius:999px;font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:all .3s ease;background:transparent;color:rgba(255,255,255,.7)}
-    .perspective-btn:hover{color:#fff;background:rgba(255,255,255,.08)}
-    .perspective-btn.active{background:#fff;color:#111;box-shadow:0 4px 12px rgba(0,0,0,.15)}
-    .perspective-btn.usa-view.active{color:var(--usa)}
-    .perspective-btn.china-view.active{color:var(--chn)}
-    .home-dossier{align-self:flex-end;display:grid;gap:18px;max-width:540px;padding:30px 30px 28px;border-radius:32px;background:rgba(248,250,252,.88);backdrop-filter:blur(14px);box-shadow:0 28px 56px rgba(4,10,22,.22)}
-    .home-dossier-top{display:grid;gap:12px}
-    .home-dossier-label{display:inline-flex;align-items:center;justify-self:start;padding:7px 12px;border-radius:999px;background:#111827;color:#fff;font-size:11px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
-    .home-title{margin:0;font-family:"Bebas Neue","Arial Narrow",sans-serif;font-size:clamp(42px,5vw,72px);font-weight:400;letter-spacing:.03em;line-height:.9;color:#111827}
-    .home-intro{margin:0;color:#475467;font-size:14px;line-height:1.72}
-    .home-hook{position:relative;margin:0;padding-left:18px;color:#111827;font-size:18px;font-weight:800;letter-spacing:-.02em;line-height:1.45}
-    .home-hook::before{content:"";position:absolute;left:0;top:4px;bottom:4px;width:6px;border-radius:999px;background:linear-gradient(180deg,#ef4444 0%,#d32f2f 100%)}
+    .hero-title{position:relative;font-family:'Bebas Neue',sans-serif;font-size:clamp(56px,8vw,120px);font-weight:400;letter-spacing:.04em;line-height:.9;margin:0 0 28px;animation:fadeUp .8s .3s both}
+    .hero-title .word-usa{color:var(--usa)}
+    .hero-title .word-chn{color:var(--chn)}
+    .hero-title .word-vs{font-size:.5em;color:var(--muted);display:block;margin:.12em 0}
 
-    /* scroll-down cue */
-    .scroll-cue{display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(255,255,255,.5);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;align-self:center;animation:sc-bob 2s ease-in-out infinite;margin-top:-12px}
-    @keyframes sc-bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+    .hero-subtitle{position:relative;max-width:560px;margin:0 auto 20px;font-size:16px;line-height:1.7;color:#8aaccc;animation:fadeUp .8s .4s both}
+    .hero-hook-line{position:relative;max-width:540px;margin:0 auto 42px;padding:20px 24px;border-radius:16px;background:rgba(26,108,255,.07);border:1px solid rgba(26,108,255,.18);font-size:15px;font-weight:600;color:var(--ink);line-height:1.5;animation:fadeUp .8s .5s both}
 
-    /* ═══════════════════════════════════════════════════════════
-       SPORT PARK SECTION
-    ═══════════════════════════════════════════════════════════ */
-    .sportpark-section{margin-bottom:56px}
+    .hero-chips{position:relative;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:52px;animation:fadeUp .8s .55s both}
+    .hero-chip{padding:8px 18px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
+    .hero-chip.usa-chip{background:rgba(26,108,255,.15);border:1px solid rgba(26,108,255,.3);color:#7ab4ff}
+    .hero-chip.chn-chip{background:rgba(230,32,32,.12);border:1px solid rgba(230,32,32,.28);color:#ff9090}
+
+    .hero-scroll-cue{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(100,160,255,.4);animation:fadeUp .8s .7s both}
+    .scroll-arrow{animation:bob 2s ease-in-out infinite}
+    @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+    @keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+
+    /* ── WATERLINE DIVIDER ── */
+    .waterline{width:100%;height:2px;background:linear-gradient(90deg,transparent,rgba(26,108,255,.3) 30%,rgba(0,200,255,.5) 50%,rgba(26,108,255,.3) 70%,transparent);margin:56px 0;position:relative}
+    .waterline::after{content:'';position:absolute;top:-2px;left:0;right:0;height:6px;background:inherit;filter:blur(4px);opacity:.5}
+
+    /* ── SCROLL REVEAL ── */
+    .reveal{opacity:0;transform:translateY(36px);transition:opacity .7s ease,transform .7s ease}
+    .reveal.revealed{opacity:1;transform:none}
+
+    /* ── SECTION STRUCTURE ── */
+    .viz-section{margin:0 0 72px;scroll-margin-top:72px}
+    .section-head{display:flex;align-items:flex-end;gap:24px;margin-bottom:22px;flex-wrap:wrap}
+    .section-badge{display:flex;align-items:center;gap:10px}
+    .section-num{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,rgba(26,108,255,.25),rgba(26,108,255,.08));border:1px solid rgba(26,108,255,.3);font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#7ab4ff}
+    .section-label{font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+    .section-title{margin:0;font-family:'Syne',sans-serif;font-size:clamp(20px,2.8vw,30px);font-weight:800;color:var(--ink);letter-spacing:-.02em;flex:1}
+    .aqua-glow{text-shadow:0 0 30px rgba(26,200,255,.3)}
+
+    /* ── CARD ── */
+    .card{background:linear-gradient(140deg,rgba(12,28,58,.82),rgba(6,18,40,.92));border:1px solid var(--card-border);border-radius:24px;padding:28px 28px 22px;box-shadow:0 24px 60px rgba(0,0,10,.3),0 1px 0 rgba(100,160,255,.08) inset;backdrop-filter:blur(12px);position:relative;overflow:hidden}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(100,180,255,.25),transparent)}
+    .card p{margin:8px 0 14px;color:var(--muted);line-height:1.65;font-size:14px}
+    .card.card-usa{border-left:3px solid rgba(26,108,255,.5)}
+    .card.card-chn{border-left:3px solid rgba(230,32,32,.5)}
+    .card.card-aqua{border-left:3px solid rgba(0,200,255,.45)}
+    .card.card-gold{border-left:3px solid rgba(240,192,64,.5)}
+
+    /* ── RIVALRY STRIP ── */
+    .rivalry-strip{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center;padding:42px 0 38px;border-bottom:1px solid rgba(100,160,255,.08);margin-bottom:56px}
+    .rivalry-text{display:grid;gap:10px}
+    .rivalry-kicker{display:inline-flex;align-items:center;justify-self:start;padding:6px 14px;border-radius:999px;background:rgba(26,108,255,.12);border:1px solid rgba(26,108,255,.25);font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#7ab4ff}
+    .rivalry-title{margin:0;font-family:'Syne',sans-serif;font-size:clamp(22px,3vw,34px);font-weight:800;color:var(--ink);letter-spacing:-.03em}
+    .rivalry-copy{margin:0;color:var(--muted);font-size:14px;line-height:1.75;max-width:62ch}
+    .stat-chips{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0 0}
+    .stat-chip{padding:10px 18px;border-radius:14px;background:rgba(26,108,255,.07);border:1px solid rgba(26,108,255,.15);text-align:center}
+    .stat-chip-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#7ab4ff;display:block}
+    .stat-chip-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+    .scroll-nav{display:flex;flex-direction:column;gap:6px}
+    .scroll-nav a{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:12px;background:rgba(26,108,255,.08);border:1px solid rgba(26,108,255,.15);color:#7ab4ff;font-size:12px;font-weight:700;letter-spacing:.04em;text-decoration:none;transition:all .2s;white-space:nowrap}
+    .scroll-nav a:hover{background:rgba(26,108,255,.18);border-color:rgba(26,108,255,.35);transform:translateX(4px)}
+    .nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+
+    /* ── SPORT PARK ── */
+    .sportpark-section{margin-bottom:64px}
     .sportpark-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
     .sportpark-copy{display:grid;gap:6px;max-width:56ch}
-    .sportpark-eyebrow{display:inline-flex;align-items:center;justify-self:start;padding:6px 11px;border-radius:999px;background:#eef2ff;color:#1d4ed8;font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
-    .sportpark-title{margin:0;font-size:20px;font-weight:900;letter-spacing:-.03em;color:#111827}
-    .sportpark-note{margin:0;font-size:13px;line-height:1.55;color:#5b6472}
-    .sportpark-count{display:inline-flex;align-items:center;justify-content:center;min-width:110px;padding:9px 14px;border-radius:999px;background:#fff;color:#111827;font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;box-shadow:0 12px 26px rgba(0,0,0,.10);white-space:nowrap}
+    .sportpark-eyebrow{display:inline-flex;align-items:center;justify-self:start;padding:6px 11px;border-radius:999px;background:rgba(26,108,255,.1);border:1px solid rgba(26,108,255,.2);color:#7ab4ff;font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
+    .sportpark-title{margin:0;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
+    .sportpark-note{margin:0;font-size:13px;line-height:1.55;color:var(--muted)}
+    .sportpark-count{display:inline-flex;align-items:center;justify-content:center;min-width:110px;padding:9px 14px;border-radius:999px;background:rgba(26,108,255,.1);border:1px solid rgba(26,108,255,.2);color:#7ab4ff;font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
 
-    /* ═══════════════════════════════════════════════════════════
-       RIVALRY SECTION DIVIDER + SCROLL NAV
-    ═══════════════════════════════════════════════════════════ */
-    .rivalry-intro{display:grid;gap:10px;max-width:760px;padding:40px 0 28px}
-    .rivalry-kicker{display:inline-flex;align-items:center;justify-self:start;padding:8px 12px;border-radius:999px;background:#111827;color:#fff;font-size:11px;font-weight:900;letter-spacing:.15em;text-transform:uppercase;box-shadow:0 8px 22px rgba(17,24,39,.12)}
-    .rivalry-title{margin:0;font-size:28px;font-weight:900;letter-spacing:-.04em;color:#111827}
-    .rivalry-copy{margin:0;color:#5b6472;font-size:14px;line-height:1.72;max-width:62ch}
-    .scroll-nav{display:flex;gap:10px;flex-wrap:wrap;padding-top:4px}
-    .scroll-nav a{display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:999px;background:#fff;color:#374151;font-size:12px;font-weight:800;letter-spacing:.06em;text-decoration:none;box-shadow:0 8px 20px rgba(0,0,0,.07);border:1.5px solid rgba(0,0,0,.06);transition:background .18s,color .18s,transform .18s}
-    .scroll-nav a:hover{background:#111827;color:#fff;transform:translateY(-2px)}
-    .nav-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+    /* ── CONTROLS ── */
+    .controls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:14px 0 10px}
+    .control-label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+    .year-badge{padding:4px 12px;border-radius:8px;background:rgba(26,108,255,.15);border:1px solid rgba(26,108,255,.25);font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#7ab4ff;min-width:68px;text-align:center}
+    input[type=range]{width:480px;max-width:100%;accent-color:#1a6cff}
+    .legend{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:8px 0;color:var(--muted);font-size:13px}
+    .swatch{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px}
+    .gap-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:rgba(26,108,255,.08);border:1px solid rgba(26,108,255,.15);font-size:12px;font-weight:700;color:var(--muted);margin:6px 0 10px}
 
-    /* ═══════════════════════════════════════════════════════════
-       ACCORDION  — Swimming / Diving
-    ═══════════════════════════════════════════════════════════ */
-    .acc-tabs{
-      display:flex;border-radius:16px 16px 0 0;overflow:hidden;
-      background:#fff;
-      box-shadow:0 -2px 0 0 rgba(0,0,0,.04), 0 6px 22px rgba(0,0,0,.06);
-    }
-    .acc-tab{
-      flex:1;appearance:none;border:0;border-bottom:3px solid transparent;
-      padding:18px 22px;background:transparent;
-      font-family:"Manrope",system-ui,sans-serif;
-      font-size:14px;font-weight:800;color:#9ca3af;
-      cursor:pointer;text-align:left;line-height:1.3;
-      transition:color .2s,border-color .2s,background .2s;
-    }
-    .acc-tab:hover{color:#374151;background:rgba(0,0,0,.018)}
-    .acc-tab.is-active{color:#111827;border-bottom-color:#111827;background:#fff}
-    .acc-panel{overflow:hidden;max-height:0;transition:max-height .52s cubic-bezier(.4,0,.2,1)}
+    /* ── ACCORDION ── */
+    .acc-tabs{display:flex;gap:8px;margin-bottom:0}
+    .acc-tab{flex:1;appearance:none;border:1px solid rgba(100,160,255,.12);border-bottom:none;border-radius:14px 14px 0 0;padding:16px 22px;background:rgba(6,18,40,.8);font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;text-align:left;line-height:1.3;transition:all .25s}
+    .acc-tab:hover{color:var(--ink);background:rgba(12,28,58,.9)}
+    .acc-tab.is-active{color:#7ab4ff;background:linear-gradient(140deg,rgba(12,28,58,.95),rgba(6,18,40,.98));border-color:rgba(26,108,255,.25);box-shadow:0 0 20px rgba(26,108,255,.1)}
+    .acc-panel{overflow:hidden;max-height:0;transition:max-height .55s cubic-bezier(.4,0,.2,1)}
     .acc-panel.is-open{max-height:5000px}
-    .acc-panel > .card{border-top-left-radius:0;border-top-right-radius:0}
+    .acc-panel>.card{border-top-left-radius:0;border-top-right-radius:0}
 
-    /* ═══════════════════════════════════════════════════════════
-       DIVING CUSTOM CURSOR  (stick-figure in dive pose)
-    ═══════════════════════════════════════════════════════════ */
-    #divingCard .card{
-      cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='31' cy='5' r='4' fill='%231f4ed8' stroke='white' stroke-width='1.5'/%3E%3Cline x1='31' y1='9' x2='20' y2='21' stroke='%231f4ed8' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='20' y1='21' x2='7' y2='17' stroke='%231f4ed8' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='31' y1='9' x2='37' y2='7' stroke='%231f4ed8' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='20' y1='21' x2='27' y2='33' stroke='%231f4ed8' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='33' x2='23' y2='38' stroke='%231f4ed8' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") 20 5, crosshair;
-    }
+    /* ── TWO-COL ── */
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media(max-width:860px){.two-col{grid-template-columns:1fr}}
+    .pool-label{display:flex;align-items:center;gap:8px;padding:8px 0 6px}
+    .pool-label-text{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--muted)}
 
-    /* ═══════════════════════════════════════════════════════════
-       RESPONSIVE
-    ═══════════════════════════════════════════════════════════ */
-    @media(max-width:860px){
-      .home-shell{padding:24px;min-height:60vh}
-      .home-stage{min-height:auto}
-      .home-dossier{max-width:none}
-    }
-    @media(max-width:640px){
-      .wrap{padding:14px 16px 48px}
-      .home-stage{border-radius:26px;margin-bottom:32px}
-      .home-shell{padding:16px}
-      .home-themes{justify-content:flex-start}
-      .home-title{font-size:clamp(34px,13vw,54px)}
-      .home-dossier{padding:20px;border-radius:24px}
-      .rivalry-title{font-size:24px}
-      .home-hook{font-size:16px}
-    }
+    /* ── VIZ HOST ── */
+    .viz{width:100%;overflow-x:auto}
+    .viz svg{display:block}
+
+    /* ── FILTER PILLS ── */
+    .filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
+    .filter-pills{display:flex;gap:8px;flex-wrap:wrap}
+    .filter-pill{appearance:none;border:1px solid rgba(100,160,255,.15);border-radius:999px;padding:8px 14px;background:rgba(26,108,255,.06);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+    .filter-pill:hover{color:var(--ink);border-color:rgba(26,108,255,.3)}
+    .filter-pill.is-active{background:rgba(26,108,255,.2);border-color:rgba(26,108,255,.45);color:#7ab4ff}
+    .mode-summary{margin:0 0 8px;color:var(--muted);font-size:13px}
+
+    /* ── TOOLTIP ── */
+    .tt{position:fixed;pointer-events:none;z-index:500;background:rgba(4,13,31,.97);border:1px solid rgba(100,160,255,.2);color:var(--ink);padding:12px 14px;border-radius:14px;font-size:12px;line-height:1.4;box-shadow:0 20px 40px rgba(0,0,0,.4),0 0 20px rgba(26,108,255,.08);opacity:0;transform:translate(-50%,-110%);transition:opacity .15s}
+    .tt .k{color:var(--muted)}
+
+    /* ── MISC ── */
+    .small{font-size:12px;color:var(--muted);line-height:1.5}
+    label{font-weight:600;color:var(--muted);font-size:13px}
+    input[type=checkbox]{accent-color:#1a6cff}
+    #raceModeSummary{padding:10px 16px;border-radius:12px;background:rgba(26,108,255,.06);border:1px solid rgba(26,108,255,.1);font-size:13px;color:var(--muted);margin-top:8px}
+    .footer{border-top:1px solid rgba(100,160,255,.08);padding:32px 0 0;text-align:center;color:rgba(100,140,200,.3);font-size:12px;letter-spacing:.06em}
+
+    /* ── DIVING CURSOR ── */
+    #divingCard .card{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='31' cy='5' r='4' fill='%231a6cff' stroke='white' stroke-width='1.5'/%3E%3Cline x1='31' y1='9' x2='20' y2='21' stroke='%231a6cff' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='20' y1='21' x2='7' y2='17' stroke='%231a6cff' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='31' y1='9' x2='37' y2='7' stroke='%231a6cff' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='20' y1='21' x2='27' y2='33' stroke='%231a6cff' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='33' x2='23' y2='38' stroke='%231a6cff' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") 20 5,crosshair}
+
+    /* ── RESPONSIVE ── */
+    @media(max-width:860px){.rivalry-strip{grid-template-columns:1fr}.scroll-nav{flex-direction:row;flex-wrap:wrap}.hero-title{font-size:clamp(48px,12vw,80px)}.perspective-float{bottom:16px;right:16px}}
+    @media(max-width:640px){.wrap{padding:0 14px 60px}.card{padding:18px 16px}.hero{padding:60px 16px 80px}}
   </style>
 </head>
 <body>
+
+<!-- OCEAN BG -->
+<div id="ocean-bg"><canvas id="ocean-canvas"></canvas></div>
+<div class="depth-gradient"></div>
+
+<!-- SCROLL PROGRESS -->
+<div id="scroll-progress"></div>
+
+<!-- PERSPECTIVE FLASH -->
+<div class="perspective-flash" id="pfx"></div>
+
+<!-- STICKY NAV -->
+<nav id="sticky-nav">
+  <div class="nav-brand">US × CHN · Olympic Rivalry</div>
+  <div class="nav-links">
+    <a class="nav-link" href="#dominanceCard">Medals</a>
+    <a class="nav-link" href="#aquaticSection">Aquatics</a>
+    <a class="nav-link" href="#goldCard">Race Scale</a>
+  </div>
+</nav>
+
+<!-- FLOATING PERSPECTIVE TOGGLE -->
+<div class="perspective-float">
+  <div class="perspective-float-label">Perspective</div>
+  <div class="perspective-btn-row">
+    <button class="perspective-btn usa-view active" data-perspective="usa" type="button">🇺🇸 USA</button>
+    <button class="perspective-btn china-view"      data-perspective="china" type="button">🇨🇳 China</button>
+  </div>
+</div>
+
 <div class="wrap">
 
-  <!-- ══════════════════════════════════════════════════════════
-       1. HERO
-  ══════════════════════════════════════════════════════════ -->
-  <div class="home-stage">
-    <div class="home-shell">
+  <!-- ═══════════════ HERO ═══════════════ -->
+  <section class="hero" id="hero">
+    <div class="hero-bg-img"></div>
+    <div class="hero-bg-overlay"></div>
 
-      <div class="home-scene-top">
-        <div class="home-kicker">CSC316 Final Project</div>
-        <div class="perspective-toggle" aria-label="Choose your perspective">
-          <button class="perspective-btn usa-view active" data-perspective="usa" type="button">🇺🇸 Team USA</button>
-          <button class="perspective-btn china-view"      data-perspective="china" type="button">🇨🇳 Team China</button>
-        </div>
-        <div class="home-themes">
-          <span class="home-theme-chip" id="themeChip0">Historical Dominator</span>
-          <span class="home-theme-chip" id="themeChip1">Rising Challenger</span>
-        </div>
-      </div>
-
-      <div class="home-dossier">
-        <div class="home-dossier-top">
-          <div class="home-dossier-label">The Rivalry</div>
-          <div class="home-title"  id="heroTitle">USA vs China on the Olympic Stage</div>
-          <p class="home-intro"    id="heroIntro">This story follows the shift from long US control to a rivalry that becomes measurable across overall medal scale, historical medal count, swimming pressure, and diving strength.</p>
-          <p class="home-hook"     id="heroHook">One country sets the Olympic standard. The other rises fast enough to turn the story into a direct US-China contest.</p>
-        </div>
-      </div>
-
-      <div class="scroll-cue" aria-hidden="true">
-        Scroll to explore
-        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
-          <path d="M10 4v12M4 10l6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-
+    <div class="hero-kicker">
+      <span class="pulse-dot"></span>
+      CSC316 Final Project · Summer Olympics
     </div>
-  </div>
+    <div class="hero-eyebrow">
+      <span class="hero-flag">🇺🇸</span>
+      <span class="hero-vs">VS</span>
+      <span class="hero-flag">🇨🇳</span>
+    </div>
+    <h1 class="hero-title">
+      <span class="word-usa" id="heroLine1">USA</span>
+      <span class="word-vs">on the olympic stage</span>
+      <span class="word-chn" id="heroLine2">China</span>
+    </h1>
+    <p class="hero-subtitle" id="heroIntro">This story follows the shift from long US control to a rivalry that becomes measurable across overall medal scale, historical medal count, swimming pressure, and diving strength.</p>
+    <div class="hero-hook-line" id="heroHook">One country sets the Olympic standard. The other rises fast enough to turn the story into a direct US‑China contest.</div>
+    <div class="hero-chips">
+      <span class="hero-chip usa-chip" id="themeChip0">Historical Dominator</span>
+      <span class="hero-chip chn-chip" id="themeChip1">Rising Challenger</span>
+    </div>
+    <div class="hero-scroll-cue">
+      Scroll to explore
+      <div class="scroll-arrow">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10l6 6 6-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+  </section>
 
-  <!-- ══════════════════════════════════════════════════════════
-       2. SPORT PARK MAP  — right below the hero
-  ══════════════════════════════════════════════════════════ -->
-  <section class="sportpark-section" id="sportParkSection" aria-label="Olympic sports park map">
+  <div class="waterline"></div>
+
+  <!-- ═══════════════ SPORT PARK ═══════════════ -->
+  <section class="sportpark-section reveal" id="sportParkSection">
     <div class="sportpark-head">
       <div class="sportpark-copy">
-        <div class="sportpark-eyebrow">Full field</div>
+        <div class="sportpark-eyebrow">Full Field</div>
         <h2 class="sportpark-title">Summer sports across the Olympic stage</h2>
         <p class="sportpark-note">Click any glowing venue dot to explore its sports. Select a sport pill to reveal all-time medal leaders and an official link to learn more.</p>
       </div>
       <div id="homeSportCount" class="sportpark-count">0 sports</div>
     </div>
-    <!-- sportpark.js renders the interactive park map into this div -->
     <div id="homeSportField" style="width:100%;position:relative;"></div>
   </section>
 
-  <!-- ══════════════════════════════════════════════════════════
-       3. RIVALRY INTRO + QUICK NAV
-  ══════════════════════════════════════════════════════════ -->
-  <div class="rivalry-intro">
-    <div class="rivalry-kicker">The data story</div>
-    <h2 class="rivalry-title" id="rivalryTitle">Where the rivalry becomes visible</h2>
-    <p  class="rivalry-copy"  id="rivalryCopy">The United States carries the broader medal machine and deep swimming history. China is especially forceful in diving and increasingly credible in the pool — turning the medal race into direct sport-by-sport pressure.</p>
-    <nav class="scroll-nav" aria-label="Jump to visualization">
-      <a href="#dominanceCard"><span class="nav-dot" style="background:var(--usa)"></span>Medal Count</a>
-      <a href="#aquaticSection" data-open-panel="swimmingCard"><span class="nav-dot" style="background:#0ea5e9"></span>Swimming</a>
-      <a href="#aquaticSection" data-open-panel="divingCard"  ><span class="nav-dot" style="background:#06b6d4"></span>Diving</a>
-      <a href="#goldCard"     ><span class="nav-dot" style="background:var(--gold)"></span>Race Scale</a>
+  <div class="waterline"></div>
+
+  <!-- ═══════════════ RIVALRY STRIP ═══════════════ -->
+  <div class="rivalry-strip reveal" id="rivalryStrip">
+    <div class="rivalry-text">
+      <div class="rivalry-kicker">The Data Story</div>
+      <h2 class="rivalry-title" id="rivalryTitle">Where the rivalry becomes visible</h2>
+      <p class="rivalry-copy" id="rivalryCopy">The United States carries the broader medal machine and deep swimming history. China is especially forceful in diving and increasingly credible in the pool — turning the medal race into direct sport-by-sport pressure.</p>
+      <div class="stat-chips">
+        <div class="stat-chip"><span class="stat-chip-num">120+</span><span class="stat-chip-label">Years of Data</span></div>
+        <div class="stat-chip"><span class="stat-chip-num">4</span><span class="stat-chip-label">Key Lenses</span></div>
+        <div class="stat-chip"><span class="stat-chip-num">🏊🤿</span><span class="stat-chip-label">Aquatics Focus</span></div>
+      </div>
+    </div>
+    <nav class="scroll-nav">
+      <a href="#dominanceCard"><span class="nav-dot" style="background:var(--usa)"></span>① Medal Count</a>
+      <a href="#aquaticSection" data-open-panel="swimmingCard"><span class="nav-dot" style="background:#0ea5e9"></span>② Swimming</a>
+      <a href="#aquaticSection" data-open-panel="divingCard"><span class="nav-dot" style="background:#06b6d4"></span>③ Diving</a>
+      <a href="#goldCard"><span class="nav-dot" style="background:var(--gold)"></span>④ Race Scale</a>
     </nav>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════
-       4. VIZ 1 — Medal Count / Dominance
-  ══════════════════════════════════════════════════════════ -->
-  <div class="viz-section" id="dominanceCard">
-    <div class="section-eyebrow">
-      <div class="section-num">1</div>
-      <div class="section-label">Medal Count</div>
+  <!-- ═══════════════ VIZ 1 ═══════════════ -->
+  <div class="viz-section reveal" id="dominanceCard">
+    <div class="section-head">
+      <div class="section-badge">
+        <div class="section-num">1</div>
+        <div class="section-label">Medal Count</div>
+      </div>
+      <h2 class="section-title" id="dominanceTitle">Medals — USA dominance, and who's closest each year</h2>
     </div>
-    <div class="card">
-      <h2 id="dominanceTitle">Medals number — USA dominance, and who's closest each year</h2>
-      <p>The stacked area shows <b>USA event‑medal volume</b> over time (team events counted once per event, split into gold/silver/bronze). When the dashed "challenger" line is on, it tracks the <b>closest non‑USA team</b> each year — making it easy to spot when China starts closing the gap after the 1980s.</p>
-      <div class="legend" style="align-items:center">
+    <div class="card card-usa">
+      <p>The stacked area shows <b>USA event‑medal volume</b> over time (team events counted once, split gold/silver/bronze). The dashed challenger line tracks the <b>closest non‑USA team each year</b> — revealing when China starts closing the gap after the 1980s.</p>
+      <div class="legend">
         <span><span class="swatch" style="background:var(--gold)"></span>Gold</span>
         <span><span class="swatch" style="background:var(--silver)"></span>Silver</span>
         <span><span class="swatch" style="background:var(--bronze)"></span>Bronze</span>
         <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
-          <input id="toggleChallenger" type="checkbox" checked style="transform:translateY(1px)" />
-          <span class="swatch" style="background:#111"></span>
-          <span>Closest challenger (dashed)</span>
+          <input id="toggleChallenger" type="checkbox" checked />
+          <span class="swatch" style="background:rgba(122,180,255,.5);border:1px dashed rgba(122,180,255,.5)"></span>
+          Closest challenger (dashed)
         </label>
       </div>
       <div id="viz1" class="viz"></div>
-      <div class="small">Note: this panel uses <b>event medals</b> (team events counted once per event; derived by de‑duplicating athlete rows).</div>
+      <p class="small" style="margin-top:12px">Event medals: team events counted once per event (de-duplicated athlete rows).</p>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════
-       5+6. AQUATICS ACCORDION — Swimming & Diving
-  ══════════════════════════════════════════════════════════ -->
-  <div class="viz-section" id="aquaticSection">
-    <div class="section-eyebrow">
-      <div class="section-num" style="background:linear-gradient(135deg,#0369a1,#0e7490)">~</div>
-      <div class="section-label">Aquatics</div>
+  <div class="waterline"></div>
+
+  <!-- ═══════════════ AQUATICS ACCORDION ═══════════════ -->
+  <div class="viz-section reveal" id="aquaticSection">
+    <div class="section-head">
+      <div class="section-badge">
+        <div class="section-num" style="background:linear-gradient(135deg,rgba(0,160,255,.25),rgba(0,200,255,.08));border-color:rgba(0,180,255,.3);color:#60d0ff;">~</div>
+        <div class="section-label">Aquatics</div>
+      </div>
+      <h2 class="section-title aqua-glow">Swimming &amp; Diving — where the rivalry runs deepest</h2>
     </div>
 
-    <!-- Tab bar -->
-    <div class="acc-tabs" role="tablist" aria-label="Aquatics visualizations">
-      <button class="acc-tab is-active"
-              data-panel="swimmingCard" role="tab"
-              aria-selected="true" aria-controls="swimmingCard">
-        🏊 Swimming — China catching up in the pool
-      </button>
-      <button class="acc-tab"
-              data-panel="divingCard" role="tab"
-              aria-selected="false" aria-controls="divingCard">
-        🤿 Diving — medal flow as a wave
-      </button>
+    <div class="acc-tabs" role="tablist">
+      <button class="acc-tab is-active" data-panel="swimmingCard" role="tab" aria-selected="true">🏊 Swimming — China catching up in the pool</button>
+      <button class="acc-tab"           data-panel="divingCard"   role="tab" aria-selected="false">🤿 Diving — medal flow as a wave</button>
     </div>
 
-    <!-- Swimming panel (open by default) -->
     <div class="acc-panel is-open" id="swimmingCard" role="tabpanel">
-      <div class="card">
-        <h2 id="swimmingTitle">Swimming lanes — China catching up in the pool</h2>
-        <p>Each dot is one <b>swimming medal (athlete‑medal)</b>. We place medals into 8 lanes using a center‑lane emphasis rule (lanes 4/5 first), cycling outward to keep the composition stable while you scrub years. Use the slider to scrub time.</p>
+      <div class="card card-aqua">
+        <h3 id="swimmingTitle" style="margin:0 0 6px;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--ink)">Swimming lanes — China catching up in the pool</h3>
+        <p>Each dot is one <b>swimming medal (athlete‑medal)</b>. Medals fill 8 lanes using center‑lane emphasis, cycling outward for stable composition. Scrub the year slider to watch the story evolve.</p>
         <div class="controls">
-          <label>Olympic year:</label>
-          <div><b id="swimYearLabel">—</b></div>
+          <span class="control-label">Olympic year:</span>
+          <div class="year-badge" id="swimYearLabel">—</div>
           <input id="yearSlider" type="range" />
-          <div class="small">(drag)</div>
         </div>
-        <div id="gapText" class="small"></div>
+        <div class="gap-pill" id="gapText">Loading…</div>
         <div class="two-col">
           <div>
-            <div class="small"><b id="swimUSALabel">USA • Swimming medals: 0</b></div>
+            <div class="pool-label"><span style="font-size:20px">🇺🇸</span><span class="pool-label-text" id="swimUSALabel">USA • Swimming medals: 0</span></div>
             <div id="swimUSA" class="viz"></div>
           </div>
           <div>
-            <div class="small"><b id="swimCHNLabel">CHN • Swimming medals: 0</b></div>
+            <div class="pool-label"><span style="font-size:20px">🇨🇳</span><span class="pool-label-text" id="swimCHNLabel">CHN • Swimming medals: 0</span></div>
             <div id="swimCHN" class="viz"></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Diving panel (collapsed by default) -->
     <div class="acc-panel" id="divingCard" role="tabpanel">
-      <div class="card">
-        <h2 id="divingTitle">Diving — medal flow as a wave (CHN above water, USA below)</h2>
-        <p>Diving medals per year are mirrored around the "waterline" (0). The filled shapes read like a wave. Dots are individual medals (gold/silver/bronze), stacked within each year. The diver is a small narrative cue: "the impact point" is where the story starts to change.
-          <span style="font-size:11px;color:#9ca3af;margin-left:6px">✦ Hover to activate dive cursor</span></p>
+      <div class="card card-aqua">
+        <h3 id="divingTitle" style="margin:0 0 6px;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--ink)">Diving — medal flow as a wave (CHN above water, USA below)</h3>
+        <p>Diving medals per year mirrored around the "waterline". The filled shapes read like a wave. Dots are individual medals stacked per year. The diver marks when the story begins to shift. <span style="font-size:11px;color:var(--muted)">✦ Hover any dot to see the event.</span></p>
         <div id="divingFlow" class="viz"></div>
-        <div class="small">This panel uses <b>athlete‑medals</b> so you can see the "medal flow" texture over time.</div>
+        <p class="small">Athlete-medals — each individual medal counts.</p>
       </div>
     </div>
   </div>
 
-  <!-- ══════════════════════════════════════════════════════════
-       7. VIZ 4 — Three medal race scales (Gold · Silver · Bronze)
-  ══════════════════════════════════════════════════════════ -->
-  <div class="viz-section" id="goldCard">
-    <div class="section-eyebrow">
-      <div class="section-num">4</div>
-      <div class="section-label">Race Scale</div>
+  <div class="waterline"></div>
+
+  <!-- ═══════════════ VIZ 4 RACE SCALES ═══════════════ -->
+  <div class="viz-section reveal" id="goldCard">
+    <div class="section-head">
+      <div class="section-badge">
+        <div class="section-num" style="background:linear-gradient(135deg,rgba(240,192,64,.2),rgba(240,192,64,.06));border-color:rgba(240,192,64,.35);color:#f0c040;">4</div>
+        <div class="section-label">Race Scale</div>
+      </div>
+      <h2 class="section-title" id="goldTitle">🥇 Gold · 🥈 Silver · 🥉 Bronze — race scale (USA vs CHN)</h2>
     </div>
-    <div class="card">
-      <h2 id="goldTitle">🥇 Gold · 🥈 Silver · 🥉 Bronze — race scale (USA vs CHN)</h2>
-      <p>Three balance scales show who leads the <b>cumulative event-medal race</b> for each medal type up to the selected year. Scroll into view to auto-play — drag the slider any time to take control.</p>
+    <div class="card card-gold">
+      <p>Three balance scales show cumulative event-medal leadership for each medal type up to the selected year. Scroll into view to auto-play — drag the slider to take control.</p>
       <div class="controls">
-        <label>Year:</label>
+        <span class="control-label">Year:</span>
+        <div class="year-badge" id="rivalYearLabel">—</div>
         <input id="rivalYearSlider" type="range" />
-        <div>▶ <b id="rivalYearLabel">—</b></div>
       </div>
       <div id="viz4" class="viz"></div>
-      <div id="raceModeSummary" class="small"></div>
-      <div class="small" style="margin-top:4px">Event medals: team events counted once per event.</div>
+      <div id="raceModeSummary"></div>
+      <p class="small" style="margin-top:8px">Event medals: team events counted once per event.</p>
     </div>
   </div>
 
-</div><!-- /.wrap -->
+  <div class="footer">CSC316 Final Project · US–China Olympic Rivalry · Summer Games</div>
 
+</div><!-- /.wrap -->
 <div id="tooltip" class="tt"></div>
 
-<!-- ── Visualization scripts ─────────────────────────────────
-     Load order: sportpark → viz1–4 → shared (data loader, must be last)
-──────────────────────────────────────────────────────────── -->
+<!-- VIZ SCRIPTS -->
 <script src="sportpark.js"></script>
 <script src="viz1_dominance.js"></script>
 <script src="viz2_swimming.js"></script>
@@ -366,5 +407,188 @@
 <script src="viz4_goldrace.js"></script>
 <script src="shared.js"></script>
 
+<script>
+/* ═══ OCEAN CANVAS ═══ */
+(function(){
+  const cv = document.getElementById('ocean-canvas');
+  if (!cv) return;
+  const cx = cv.getContext('2d');
+  let W, H;
+  function resize(){ W = cv.width = window.innerWidth; H = cv.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const BUBBLES = Array.from({length:60}, () => ({
+    x: Math.random(), y: Math.random(),
+    r: 1.2 + Math.random()*4.5,
+    speed: 0.0001 + Math.random()*0.00025,
+    drift: (Math.random()-.5)*0.00018,
+    alpha: 0.04 + Math.random()*0.1,
+    phase: Math.random()*Math.PI*2,
+  }));
+
+  const WAVES = [
+    {a:20, f:0.0010, s:0.28, y:0.22, p:0.0,         c:'#1a6cff', o:0.028},
+    {a:14, f:0.0016, s:0.38, y:0.35, p:Math.PI*.6,  c:'#00cfff', o:0.020},
+    {a:26, f:0.0008, s:0.20, y:0.50, p:Math.PI*1.2, c:'#1a6cff', o:0.018},
+    {a:10, f:0.0022, s:0.50, y:0.65, p:Math.PI*1.8, c:'#0080ff', o:0.014},
+    {a:18, f:0.0013, s:0.33, y:0.80, p:Math.PI*0.3, c:'#00cfff', o:0.012},
+  ];
+
+  let t = 0;
+  function frame(){
+    cx.clearRect(0,0,W,H);
+
+    WAVES.forEach(w => {
+      cx.beginPath();
+      cx.moveTo(0, w.y*H);
+      for(let x=0; x<=W; x+=3){
+        cx.lineTo(x, w.y*H + Math.sin(x*w.f + t*w.s + w.p)*w.a);
+      }
+      cx.strokeStyle = w.c;
+      cx.globalAlpha = w.o;
+      cx.lineWidth = 1.4;
+      cx.stroke();
+    });
+
+    cx.globalAlpha = 1;
+    BUBBLES.forEach(b => {
+      b.y -= b.speed;
+      b.x += Math.sin(t*0.35 + b.phase)*b.drift;
+      if(b.y < -0.02){ b.y = 1.02; b.x = Math.random(); }
+      const bx = b.x*W, by = b.y*H;
+      cx.beginPath();
+      cx.arc(bx, by, b.r, 0, Math.PI*2);
+      cx.strokeStyle = `rgba(122,180,255,${b.alpha})`;
+      cx.lineWidth = 1;
+      cx.stroke();
+      cx.beginPath();
+      cx.arc(bx - b.r*.3, by - b.r*.3, b.r*.28, 0, Math.PI*2);
+      cx.fillStyle = `rgba(200,230,255,${b.alpha*.55})`;
+      cx.fill();
+    });
+
+    t += 0.016;
+    requestAnimationFrame(frame);
+  }
+  frame();
+})();
+
+/* ═══ SCROLL PROGRESS + STICKY NAV ═══ */
+(function(){
+  const bar = document.getElementById('scroll-progress');
+  const nav = document.getElementById('sticky-nav');
+  const heroH = () => document.getElementById('hero')?.offsetHeight || 600;
+  window.addEventListener('scroll', () => {
+    const s = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = ((s/total)*100)+'%';
+    nav.classList.toggle('visible', s > heroH()*.55);
+  }, {passive:true});
+})();
+
+/* ═══ SCROLL REVEAL ═══ */
+(function(){
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if(e.isIntersecting){ e.target.classList.add('revealed'); io.unobserve(e.target); }
+    });
+  }, {threshold:0.07});
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+})();
+
+/* ═══ PERSPECTIVE TOGGLE ═══ */
+(function(){
+  const btns = document.querySelectorAll('.perspective-btn');
+  const flash = document.getElementById('pfx');
+  let current = 'usa';
+
+  const COPY = {
+    usa: {
+      l1:'USA', l2:'CHINA', l1cls:'word-usa', l2cls:'word-chn',
+      heroIntro:'This story follows the shift from long US control to a rivalry that becomes measurable across overall medal scale, historical medal count, swimming pressure, and diving strength.',
+      heroHook:'One country sets the Olympic standard. The other rises fast enough to turn the story into a direct US‑China contest.',
+      chip0:'Historical Dominator', chip1:'Rising Challenger',
+      rivalryTitle:'Where the rivalry becomes visible',
+      rivalryCopy:'The United States carries the broader medal machine and deep swimming history. China is especially forceful in diving and increasingly credible in the pool — turning the medal race into direct sport-by-sport pressure.',
+      dominanceTitle:'Medals — USA dominance, and who\'s closest each year',
+      swimmingTitle:'Swimming lanes — China catching up in the pool',
+      divingTitle:'Diving — medal flow as a wave (CHN above water, USA below)',
+      goldTitle:'🥇 Gold · 🥈 Silver · 🥉 Bronze — race scale (USA vs CHN)',
+    },
+    china: {
+      l1:'CHINA', l2:'USA', l1cls:'word-chn', l2cls:'word-usa',
+      heroIntro:"This story follows China's remarkable rise from emerging competitor to Olympic powerhouse, challenging America's long-standing dominance across medal counts, swimming excellence, and diving supremacy.",
+      heroHook:"One country challenges the status quo. The other must defend its position as the rivalry intensifies across every Olympic stage.",
+      chip0:'Rising Powerhouse', chip1:'Defending Champion',
+      rivalryTitle:"Where China's rise becomes unmistakable",
+      rivalryCopy:"China's surge in diving is unmatched, and its growing presence in the pool signals a broader shift. The medal race now runs through every sport where the two nations directly clash.",
+      dominanceTitle:'Medals — China\'s rise, closing on the leader',
+      swimmingTitle:'Swimming lanes — China\'s progress in the pool',
+      divingTitle:'Diving — China\'s dominance above the waterline',
+      goldTitle:'🥇 Gold · 🥈 Silver · 🥉 Bronze — race scale (CHN vs USA)',
+    },
+  };
+
+  function apply(p){
+    const c = COPY[p];
+    const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+    const setClass = (id,cls) => { const el=document.getElementById(id); if(el) el.className=cls; };
+    setClass('heroLine1', c.l1cls); set('heroLine1', c.l1);
+    setClass('heroLine2', c.l2cls); set('heroLine2', c.l2);
+    set('heroIntro',       c.heroIntro);
+    set('heroHook',        c.heroHook);
+    set('themeChip0',      c.chip0);
+    set('themeChip1',      c.chip1);
+    set('rivalryTitle',    c.rivalryTitle);
+    set('rivalryCopy',     c.rivalryCopy);
+    set('dominanceTitle',  c.dominanceTitle);
+    set('swimmingTitle',   c.swimmingTitle);
+    set('divingTitle',     c.divingTitle);
+    set('goldTitle',       c.goldTitle);
+  }
+
+  btns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = btn.dataset.perspective;
+      if(p === current) return;
+      current = p;
+
+      /* flash */
+      const col = p==='usa' ? 'rgba(26,108,255,.1)' : 'rgba(230,32,32,.1)';
+      flash.style.background = col;
+      flash.style.opacity = '1';
+      flash.style.transition = 'opacity 0s';
+      requestAnimationFrame(() => {
+        flash.style.transition = 'opacity .5s';
+        flash.style.opacity = '0';
+      });
+
+      btns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      apply(p);
+    });
+  });
+})();
+
+/* ═══ ACCORDION ═══ */
+(function(){
+  const tabs = document.querySelectorAll('.acc-tab[data-panel]');
+  if(!tabs.length) return;
+  function open(id){
+    tabs.forEach(t => {
+      const hit = t.dataset.panel===id;
+      t.classList.toggle('is-active',hit);
+      t.setAttribute('aria-selected',String(hit));
+      const panel = document.getElementById(t.dataset.panel);
+      if(panel) panel.classList.toggle('is-open',hit);
+    });
+  }
+  tabs.forEach(t => t.addEventListener('click', ()=>open(t.dataset.panel)));
+  document.querySelectorAll('a[data-open-panel]').forEach(a=>{
+    a.addEventListener('click',()=>open(a.dataset.openPanel));
+  });
+})();
+</script>
 </body>
 </html>

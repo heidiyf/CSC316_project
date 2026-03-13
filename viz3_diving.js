@@ -406,6 +406,10 @@ function renderDivingFlow(data) {
   const oldCursor = document.getElementById('dive-cursor-el');
   if (oldCursor) oldCursor.remove();
 
+  // Remove any old splash container
+  const oldSplash = document.getElementById('dive-splash-container');
+  if (oldSplash) oldSplash.remove();
+
   const GIF_SIZE = 160; // bigger so the animation reads clearly
 
   const cursorEl = document.createElement('div');
@@ -420,6 +424,17 @@ function renderDivingFlow(data) {
     'display:none',
     'filter:drop-shadow(0 6px 20px rgba(26,108,255,.55))',
   ].join(';');
+
+  // Create splash container for water splash effects
+  const splashContainer = document.createElement('div');
+  splashContainer.id = 'dive-splash-container';
+  splashContainer.style.cssText = [
+    'position:fixed',
+    'pointer-events:none',
+    'z-index:9998',
+    'inset:0',
+  ].join(';');
+  document.body.appendChild(splashContainer);
 
   const SRC_ABOVE = 'diving.gif';
   const SRC_BELOW = 'diving_underwater.gif';
@@ -436,6 +451,95 @@ function renderDivingFlow(data) {
   cursorEl.appendChild(imgAbove);
   cursorEl.appendChild(imgBelow);
   document.body.appendChild(cursorEl);
+
+  /* ── Water Splash Effect ────────────────────────────────────────
+     Creates water droplets that splash when cursor crosses waterline
+     Water splash always originates from the waterline (y coordinate)
+  ──────────────────────────────────────────────────────────────── */
+  function createWaterSplash(x, waterlineY) {
+    const splashBubbles = document.createElement('div');
+    splashBubbles.style.cssText = 'position:fixed;pointer-events:none;width:0;height:0;';
+    splashContainer.appendChild(splashBubbles);
+
+    // Create multiple water droplets radiating from waterline impact point
+    const dropletCount = 12;
+    const splashRadius = 80;  // increased splash radius
+    const maxDropletSize = 16; // increased from 14 (8+6)
+
+    for (let i = 0; i < dropletCount; i++) {
+      const angle = (i / dropletCount) * Math.PI * 2;
+      const droplet = document.createElement('div');
+      const size = 10 + Math.random() * maxDropletSize; // larger droplets
+
+      droplet.style.cssText = `
+        position: fixed;
+        width: ${size}px;
+        height: ${size}px;
+        background: radial-gradient(circle at 30% 30%, rgba(58, 184, 255, 0.9), rgba(26, 108, 255, 0.5));
+        border-radius: 50%;
+        left: ${x}px;
+        top: ${waterlineY}px;
+        pointer-events: none;
+        z-index: 9998;
+        box-shadow: 0 2px 12px rgba(26, 108, 255, 0.6);
+      `;
+
+      splashBubbles.appendChild(droplet);
+
+      // Animate droplet - horizontal and upward motion from waterline
+      const vx = Math.cos(angle) * splashRadius * (0.5 + Math.random() * 0.8);
+      const vy = Math.sin(angle) * splashRadius * (0.3 + Math.random() * 0.5) - 30; // stronger upward bias
+      const gravity = 0.12;
+
+      const startTime = Date.now();
+      const duration = 800 + Math.random() * 500;
+
+      function animateDroplet() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        const currentX = x + vx * progress;
+        const currentY = waterlineY + vy * progress + 0.5 * gravity * progress * progress * 200;
+        const opacity = Math.max(0, 1 - progress * 1.1);
+
+        droplet.style.left = currentX + 'px';
+        droplet.style.top = currentY + 'px';
+        droplet.style.opacity = opacity.toString();
+
+        if (progress < 1) {
+          requestAnimationFrame(animateDroplet);
+        } else {
+          droplet.remove();
+        }
+      }
+
+      animateDroplet();
+    }
+
+    // Remove container after animation completes
+    setTimeout(() => {
+      splashBubbles.remove();
+    }, 1400);
+  }
+
+  // Add CSS for bubble animation
+  if (!document.getElementById('dive-splash-styles')) {
+    const style = document.createElement('style');
+    style.id = 'dive-splash-styles';
+    style.textContent = `
+      @keyframes bubbleRise {
+        0% {
+          transform: translateY(0) scale(1);
+          opacity: 0.8;
+        }
+        100% {
+          transform: translateY(-60px) scale(0.3);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
 
   /* ── Force GIF loop ────────────────────────────────────────────
      Browsers stop GIFs after their built-in loop count (often 1).
@@ -475,6 +579,7 @@ function renderDivingFlow(data) {
 
   const svgNode = svg.node();
   let lastAbove = true; // track which GIF is currently shown
+  let lastWaterlineY_vp = waterlineY_abs; // store waterline Y coordinate for splash effect
 
   function showAbove() {
     if (lastAbove) return;
@@ -487,12 +592,15 @@ function renderDivingFlow(data) {
     lastAbove = false;
     imgAbove.style.opacity = '0';
     imgBelow.style.opacity = '1';
+    // Trigger water splash when diving down - use waterline Y in viewport coords
+    createWaterSplash(cursorEl.offsetLeft, lastWaterlineY_vp);
   }
 
   function onDiveMouseMove(e) {
     const rect = svgNode.getBoundingClientRect();
     // Waterline position in viewport coords
     const waterlineY_vp = rect.top + (waterlineY_abs / H) * rect.height;
+    lastWaterlineY_vp = waterlineY_vp; // Store for use in showBelow
 
     cursorEl.style.left    = e.clientX + 'px';
     cursorEl.style.top     = e.clientY + 'px';
@@ -523,6 +631,7 @@ function renderDivingFlow(data) {
     svgNode.removeEventListener('mouseleave', onDiveMouseLeave);
     svgNode.removeEventListener('mouseenter', onDiveMouseEnter);
     cursorEl.remove();
+    splashContainer.remove();
   };
 }
 

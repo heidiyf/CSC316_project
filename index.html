@@ -561,8 +561,10 @@
         <div class="section-num">1</div>
         <div class="section-label">Medal Count</div>
       </div>
-      <h2 class="section-title" id="dominanceTitle">USA vs China — Olympic Medals by Sport, 1984–2024</h2>
-      <p class="section-subtitle" id="dominanceSubtitle">Each tower stacks Gold / Silver / Bronze for one country across 10 sports and 11 Games. <span style="opacity:.7">Drag to orbit · scroll to zoom · filter by year · switch perspective to spotlight a country.</span></p>
+      <h2 class="section-title" id="dominanceTitle">USA Dominance Across Major Olympic Sports from 1984-2024</h2>
+      <p class="section-subtitle" id="dominanceSubtitle">
+      A comparison of medals won by the United States and China across ten major Olympic sports since 1984. Each 3D tower stacks gold, silver, and bronze medals for each country across Olympic Games.
+      </p>
     </div>
     <div class="card card-usa">
       <div id="viz1Controls" class="viz1-controls"></div>
@@ -586,8 +588,8 @@
         <div class="acc-tab-strip-label"><span></span>Choose a lens to explore<span></span></div>
     <div class="acc-tabs" role="tablist">
       <button class="acc-tab is-active" data-panel="swimmingCard" role="tab" aria-selected="true">
-        Swimming &mdash; medals in the pool, year by year
-        <div style="font-size:11px;font-weight:400;opacity:.62;margin-top:4px">Medal dots by year &middot; scrub the slider</div>
+        Swimming &mdash; Olympic medals in the pool over time
+        <div style="font-size:11px;font-weight:400;opacity:.62;margin-top:4px">Each dot represents a swimming medal. Use the year slider to explore Olympic results over time.</div>
       </button>
       <button class="acc-tab" data-panel="divingCard" role="tab" aria-selected="false">
         Diving &mdash; medal flow as a wave
@@ -624,8 +626,8 @@
 
     <div class="acc-panel" id="divingCard" role="tabpanel">
       <div class="card card-aqua">
-        <h3 id="divingTitle" style="margin:0 0 6px;font-family:'Playfair Display',Georgia,serif;font-size:18px;font-weight:800;color:var(--ink)">Diving — medal flow as a wave (CHN above water, USA below)</h3>
-        <p>Diving medals per year mirrored around the "waterline". The filled shapes read like a wave. Dots are individual medals stacked per year. The diver marks when the story begins to shift. <span style="font-size:11px;color:var(--muted)">✦ Hover any dot to see the event.</span></p>
+        <h3 id="divingTitle" style="margin:0 0 6px;font-family:'Playfair Display',Georgia,serif;font-size:18px;font-weight:800;color:var(--ink)">Diving — Medal Flow Between China and the United States</h3>
+        <p>Each dot represents an Olympic diving medal. China’s medals appear above the waterline while U.S. medals appear below, creating a mirrored wave that shows how the balance of diving success shifts over time. <span style="font-size:11px;color:var(--muted)">✦ Hover any dot to see the event.</span></p>
         <div id="divingFlow" class="viz"></div>
         <p class="small">Athlete-medals — each individual medal counts.</p>
       </div>
@@ -641,7 +643,7 @@
         <div class="section-num" style="background:linear-gradient(135deg,rgba(240,192,64,.2),rgba(240,192,64,.06));border-color:rgba(240,192,64,.35);color:#f0c040;">4</div>
         <div class="section-label">Race Scale</div>
       </div>
-      <h2 class="section-title" id="goldTitle">Gold &middot; Silver &middot; Bronze &mdash; Race Scale (USA vs CHN)</h2>
+      <h2 class="section-title" id="goldTitle">Gold &middot; Silver &middot; Bronze &mdash; Olympic Medal Race Over Time (USA vs CHN)</h2>
     </div>
 
     <!-- Race Scale control panel -->
@@ -671,7 +673,7 @@
         <div class="race-year-readout" id="rivalYearLabel">—</div>
         <div class="race-play-state" id="playStateText">Autoplay on</div>
       </div>
-      <div id="raceModeHeadline" class="race-headline">USA and China medal race</div>
+      <div id="raceModeHeadline" class="race-headline">Tracking the Olympic medal race between the United States and China</div>
       <div id="raceModeSubline" class="race-statline">Event-medal basis for USA and China.</div>
       <div id="raceModeSummary" class="race-caption">Autoplay will pause briefly at key rivalry years.</div>
     </div>
@@ -690,12 +692,12 @@
 
 <!-- VIZ SCRIPTS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="shared.js"></script>
 <script src="sportpark.js"></script>
 <script src="viz1_dominance.js"></script>
 <script src="viz2_swimming.js"></script>
 <script src="viz3_diving.js"></script>
 <script src="viz4_goldrace.js"></script>
-<script src="shared.js"></script>
 
 <script>
 /* ═══ OCEAN CANVAS ═══ */
@@ -872,28 +874,55 @@
 
   const COPY = {
     usa:{
-      l1:'USA',l2:'CHINA',l1cls:'word-usa',l2cls:'word-chn',
-      heroIntro:'This story follows the shift from long US control to a rivalry that becomes measurable across overall medal scale, historical medal count, swimming pressure, and diving strength.',
-      heroHook:'One country sets the Olympic standard. The other rises fast enough to turn the story into a direct US-China contest.',
-      chip0:'Historical Dominator',chip1:'Rising Challenger',
-      rivalryTitle:'Where the rivalry becomes visible',
-      rivalryCopy:'The United States carries the broader medal machine and deep swimming history. China is especially forceful in diving and increasingly credible in the pool, turning the medal race into direct sport-by-sport pressure.',
-      dominanceTitle:"Medals — USA dominance, and who's closest each year",
-      swimmingTitle:'Swimming lanes — China catching up in the pool',
-      divingTitle:'Diving — medal flow as a wave (CHN above water, USA below)',
-      goldTitle:'Gold, Silver, Bronze — race scale (USA vs CHN)',
+        l1:"USA",
+        l2:"CHINA",
+        l1cls:"word-usa",
+        l2cls:"word-chn",
+
+        heroIntro:"For decades the United States dominated the Olympic medal table. In recent years, China's rapid rise has turned that dominance into a direct rivalry across total medals, swimming events, and diving competitions.",
+
+        heroHook:"What once looked like clear American dominance has evolved into one of the most compelling rivalries in modern Olympic history.",
+
+        chip0:"Historical Dominator",
+        chip1:"Rising Challenger",
+
+        rivalryTitle:"Where the rivalry becomes visible",
+
+        rivalryCopy:"The United States maintains a deep Olympic legacy, especially in swimming. China, however, dominates diving and continues to strengthen its presence in the pool, turning the Olympic medal race into a direct competition between the two nations.",
+
+        dominanceTitle:"USA Dominance Across Major Olympic Sports",
+
+        swimmingTitle:"Swimming — Olympic medals in the pool over time",
+
+        divingTitle:"Diving — Medal Flow Between China and the United States",
+
+        goldTitle:"Olympic Medal Race Over Time",
     },
+
     china:{
-      l1:'CHINA',l2:'USA',l1cls:'word-chn',l2cls:'word-usa',
-      heroIntro:"This story follows China's remarkable rise from emerging competitor to Olympic powerhouse, challenging America's long-standing dominance across medal counts, swimming excellence, and diving supremacy.",
-      heroHook:"One country challenges the status quo. The other must defend its position as the rivalry intensifies across every Olympic stage.",
-      chip0:'Rising Powerhouse',chip1:'Defending Champion',
-      rivalryTitle:"Where China's rise becomes unmistakable",
-      rivalryCopy:"China's surge in diving is unmatched, and its growing presence in the pool signals a broader shift. The medal race now runs through every sport where the two nations directly clash.",
-      dominanceTitle:"Medals — China's rise, closing on the leader",
-      swimmingTitle:"Swimming lanes — China's progress in the pool",
-      divingTitle:"Diving — China's dominance above the waterline",
-      goldTitle:'Gold, Silver, Bronze — race scale (CHN vs USA)',
+        l1:"CHINA",
+        l2:"USA",
+        l1cls:"word-chn",
+        l2cls:"word-usa",
+
+        heroIntro:"China's Olympic journey shows one of the fastest rises in modern sports history. From emerging competitor to global powerhouse, China now challenges the United States across medal counts, swimming performance, and diving dominance.",
+
+        heroHook:"China's rapid rise has transformed the Olympic Games into a direct rivalry with the United States on the world stage.",
+
+        chip0:"Rising Powerhouse",
+        chip1:"Defending Champion",
+
+        rivalryTitle:"Where China's rise becomes unmistakable",
+
+        rivalryCopy:"China's strength in diving remains unmatched, while its expanding success in swimming reflects a broader transformation. The Olympic medal race increasingly centers on direct competition between China and the United States.",
+
+        dominanceTitle:"China's Rise in Major Olympic Sports",
+
+        swimmingTitle:"Swimming — China's growing presence in the pool",
+
+        divingTitle:"Diving — China's dominance above the waterline",
+
+        goldTitle:"Olympic Medal Race Over Time",
     },
   };
 

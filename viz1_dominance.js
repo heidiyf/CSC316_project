@@ -61,11 +61,11 @@ function renderDominance(rawData) {
   };
   // Legend content per perspective
   const LEGEND_HTML = {
-    usa: `<div style="font-weight:700;font-size:10px;letter-spacing:.06em;color:#7a4a10;margin-bottom:4px">🇺🇸 USA COLOURS</div>
+    usa: `<div style="font-weight:700;font-size:10px;letter-spacing:.06em;color:#7a4a10;margin-bottom:4px">🇺🇸 USA MEDAL COLOURS</div>
 <div><span style="display:inline-block;width:11px;height:11px;background:#c89010;border-radius:2px;vertical-align:middle;margin-right:5px"></span>Gold</div>
 <div><span style="display:inline-block;width:11px;height:11px;background:#2a6fd4;border-radius:2px;vertical-align:middle;margin-right:5px"></span>Silver</div>
 <div><span style="display:inline-block;width:11px;height:11px;background:#1040a8;border-radius:2px;vertical-align:middle;margin-right:5px"></span>Bronze</div>`,
-    china: `<div style="font-weight:700;font-size:10px;letter-spacing:.06em;color:#8a1a1a;margin-bottom:4px">🇨🇳 CHINA COLOURS</div>
+    china: `<div style="font-weight:700;font-size:10px;letter-spacing:.06em;color:#8a1a1a;margin-bottom:4px">🇨🇳 CHINA MEDAL COLOURS</div>
 <div><span style="display:inline-block;width:11px;height:11px;background:#d4a000;border-radius:2px;vertical-align:middle;margin-right:5px"></span>Gold</div>
 <div><span style="display:inline-block;width:11px;height:11px;background:#d460a0;border-radius:2px;vertical-align:middle;margin-right:5px"></span>Silver</div>
 <div><span style="display:inline-block;width:11px;height:11px;background:#8a0808;border-radius:2px;vertical-align:middle;margin-right:5px"></span>Bronze</div>`
@@ -82,9 +82,9 @@ function renderDominance(rawData) {
   if(ctrlDiv){
     ctrlDiv.innerHTML='';
     ctrlDiv.style.cssText='display:flex;align-items:center;flex-wrap:wrap;gap:7px;padding:6px 0 10px;';
-    const rotBtn=document.createElement('button'); rotBtn.id='v3dRotBtn'; rotBtn.textContent='⟳ Auto-rotate'; rotBtn.style.cssText=PILL_A; ctrlDiv.appendChild(rotBtn);
+    const rotBtn=document.createElement('button'); rotBtn.id='v3dRotBtn'; rotBtn.textContent='⟳ Rotate View'; rotBtn.style.cssText=PILL_A; ctrlDiv.appendChild(rotBtn);
     const rstBtn=document.createElement('button'); rstBtn.id='v3dResetBtn'; rstBtn.textContent='⊙ Reset view'; rstBtn.style.cssText=PILL; ctrlDiv.appendChild(rstBtn);
-    const sep=document.createElement('span'); sep.textContent='YEAR:'; sep.style.cssText='color:#8a5a20;font-size:12px;font-family:Lora,serif;font-weight:600;margin-left:4px;'; ctrlDiv.appendChild(sep);
+    const sep=document.createElement('span'); sep.textContent='FILTER BY YEAR:'; sep.style.cssText='color:#8a5a20;font-size:12px;font-family:Lora,serif;font-weight:600;margin-left:4px;'; ctrlDiv.appendChild(sep);
     ['all',...YEARS].forEach(yr=>{
       const b=document.createElement('button'); b.textContent=yr==='all'?'All':yr; b.dataset.year=String(yr);
       b.style.cssText=yr==='all'?PILL_A:PILL; ctrlDiv.appendChild(b);
@@ -388,7 +388,11 @@ function renderDominance(rawData) {
             .on('mouseover',ev=>{
               const tt=document.getElementById('tooltip'); if(!tt) return;
               const flag=noc==='USA'?'🇺🇸':'🇨🇳';
-              tt.innerHTML=`<div><b>${flag} ${noc} · ${yr}</b></div><div class="k">🥇 <b>${row.G}</b> &nbsp;🥈 <b>${row.S}</b> &nbsp;🥉 <b>${row.B}</b></div><div>Total: <b>${row.total}</b></div>`;
+              tt.innerHTML = `
+              <div><b>${flag} ${noc} — ${yr}</b></div>
+              <div class="k">🥇 Gold: <b>${row.G}</b> &nbsp;&nbsp;🥈 Silver: <b>${row.S}</b> &nbsp;&nbsp;🥉 Bronze: <b>${row.B}</b></div>
+              <div>Total medals: <b>${row.total}</b></div>
+              `;
               tt.style.opacity='1';tt.style.left=ev.clientX+'px';tt.style.top=ev.clientY+'px';
             })
             .on('mousemove',ev=>{const tt=document.getElementById('tooltip');if(tt){tt.style.left=ev.clientX+'px';tt.style.top=ev.clientY+'px';}})
@@ -407,7 +411,7 @@ function renderDominance(rawData) {
         .attr('font-size',9).attr('font-weight',700).attr('font-family','Lora,serif').text(noc);
     }));
     g.append('g').call(d3.axisLeft(y).ticks(6)).call(gg=>{gg.selectAll('text').attr('fill','#5a3010').attr('font-size',12);gg.selectAll('line,path').attr('stroke','rgba(150,100,30,.2)');gg.selectAll('.domain').remove();});
-    g.append('text').attr('transform','rotate(-90)').attr('y',-52).attr('x',-h/2).attr('text-anchor','middle').attr('fill','#8a5a20').attr('font-size',11).attr('font-family','Lora,serif').text('Event medals (top 10 sports combined)');
+    g.append('text').attr('transform','rotate(-90)').attr('y',-52).attr('x',-h/2).attr('text-anchor','middle').attr('fill','#8a5a20').attr('font-size',11).attr('font-family','Lora,serif').text('Total Olympic medals in the 10 most competitive sports');
 
     // dynamic legend per perspective
     const isCHN = perspective==='china';

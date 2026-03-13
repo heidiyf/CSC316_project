@@ -169,7 +169,7 @@ Promise.all([
   renderDominance(data);
   renderSwimmingPools(data);
   renderDivingFlow(data);
-  renderGoldRace(data);
+  if (typeof window.renderGoldRace === "function") window.renderGoldRace(data);
 }).catch(err => {
   console.error('[shared.js] Failed to load data:', err);
 });

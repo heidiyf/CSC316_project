@@ -6,7 +6,7 @@
   <title>US–China Olympic Rivalry</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Playfair+Display:ital,wght@0,600;0,700;0,800;0,900;1,700&family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=DM+Sans:ital,wght@0,300;0,400;0,700;1,300&display=swap" rel="stylesheet">
   <script src="https://d3js.org/d3.v7.min.js"></script>
   <style>
     :root {
@@ -16,15 +16,23 @@
       --ink:#e8f0ff; --muted:#7a93b8;
       --card:rgba(12,28,58,.72); --card-border:rgba(100,160,255,.14);
       --bg:#040d1f; --ocean-deep:#020912; --ocean-mid:#061428;
+      --accent:#1a6cff; --accent-light:#7ab4ff;
+      --card-bg-a:rgba(10,24,58,.90); --card-bg-b:rgba(4,14,40,.97);
+      --accent-06:rgba(26,108,255,.06); --accent-08:rgba(26,108,255,.08);
+      --accent-10:rgba(26,108,255,.10); --accent-12:rgba(26,108,255,.12);
+      --accent-15:rgba(26,108,255,.15); --accent-18:rgba(26,108,255,.18);
+      --accent-20:rgba(26,108,255,.20); --accent-25:rgba(26,108,255,.25);
+      --accent-30:rgba(26,108,255,.30); --accent-35:rgba(26,108,255,.35);
+      --accent-45:rgba(26,108,255,.45);
     }
     *,*::before,*::after{box-sizing:border-box}
     html{scroll-behavior:smooth}
-    body{margin:0;font-family:'DM Sans',system-ui,sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden}
+    body{margin:0;font-family:'Lora',Georgia,serif;background:var(--bg);color:var(--ink);overflow-x:hidden;transition:background 0.8s ease}
 
     /* ── OCEAN BG ── */
     #ocean-bg{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
     #ocean-bg canvas{position:absolute;inset:0;width:100%;height:100%}
-    .depth-gradient{position:fixed;inset:0;z-index:0;pointer-events:none;
+    .depth-gradient{position:fixed;inset:0;z-index:0;pointer-events:none;transition:background 0.8s ease;
       background:radial-gradient(ellipse 120% 60% at 15% 10%,rgba(26,108,255,.06) 0%,transparent 60%),
                  radial-gradient(ellipse 80% 40% at 85% 5%,rgba(230,32,32,.05) 0%,transparent 50%),
                  linear-gradient(180deg,var(--ocean-deep) 0%,var(--ocean-mid) 30%,var(--ocean-mid) 70%,var(--ocean-deep) 100%)}
@@ -35,22 +43,60 @@
     /* ── STICKY NAV ── */
     #sticky-nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:10px 28px;background:rgba(4,13,31,.88);backdrop-filter:blur(16px);border-bottom:1px solid rgba(100,160,255,.1);transform:translateY(-100%);transition:transform .4s ease}
     #sticky-nav.visible{transform:translateY(0)}
-    .nav-brand{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:.08em;color:rgba(232,240,255,.6)}
+    .nav-brand{font-family:'Playfair Display',Georgia,serif;font-size:18px;font-style:italic;letter-spacing:.01em;color:rgba(232,240,255,.7)}
     .nav-links{display:flex;gap:6px}
     .nav-link{padding:6px 12px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-decoration:none;transition:all .2s;border:1px solid transparent}
-    .nav-link:hover{color:var(--ink);border-color:rgba(100,160,255,.2);background:rgba(26,108,255,.1)}
-    .nav-link.active{color:#fff;background:rgba(26,108,255,.18);border-color:rgba(26,108,255,.3)}
+    .nav-link:hover{color:var(--ink);border-color:rgba(100,160,255,.2);background:var(--accent-10)}
+    .nav-link.active{color:#fff;background:var(--accent-18);border-color:var(--accent-30)}
 
-    /* ── PERSPECTIVE FLOAT ── */
-    .perspective-float{position:fixed;bottom:28px;right:28px;z-index:200;display:flex;flex-direction:column;gap:0;border-radius:18px;overflow:hidden;box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 0 1px rgba(100,160,255,.15);backdrop-filter:blur(20px)}
-    .perspective-float-label{padding:7px 14px 5px;background:rgba(10,28,60,.92);font-size:9px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);text-align:center}
+    /* ── HERO PERSPECTIVE TOGGLE ── */
+    .hero-perspective-toggle{position:relative;display:flex;flex-direction:column;align-items:center;gap:14px;margin-bottom:48px;animation:fadeUp .8s .62s both}
+    .hpt-eyebrow{font-family:'Lora',serif;font-size:11px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(180,210,255,.4)}
+    .hpt-row{display:flex;align-items:center;gap:16px}
+    .hpt-btn{appearance:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:5px;padding:18px 34px 16px;border-radius:20px;font-family:'Lora',Georgia,serif;transition:all .35s cubic-bezier(.34,1.56,.64,1);position:relative;min-width:175px}
+    .hpt-btn .hpt-flag{font-size:30px;line-height:1;margin-bottom:2px}
+    .hpt-btn .hpt-name{font-family:'Playfair Display',serif;font-size:18px;font-weight:700;letter-spacing:.01em}
+    .hpt-btn .hpt-sub{font-family:'Lora',serif;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
+    .hpt-btn.usa-btn{background:rgba(26,108,255,.08);border:1.5px solid rgba(26,108,255,.2);color:rgba(122,180,255,.55);box-shadow:0 7px 0 rgba(8,28,90,.7),0 9px 22px rgba(0,0,0,.35)}
+    .hpt-btn.usa-btn:hover:not(.is-active){background:rgba(26,108,255,.14);color:rgba(122,180,255,.8);transform:translateY(-2px)}
+    .hpt-btn.usa-btn.is-active{background:linear-gradient(160deg,rgba(26,108,255,.3),rgba(26,108,255,.15));border-color:rgba(26,108,255,.5);color:#7ab4ff;box-shadow:0 2px 0 rgba(8,28,90,.7),0 4px 18px rgba(26,108,255,.22),inset 0 1px 0 rgba(150,200,255,.15);transform:translateY(5px)}
+    .hpt-btn.chn-btn{background:rgba(230,32,32,.08);border:1.5px solid rgba(230,32,32,.2);color:rgba(255,128,128,.55);box-shadow:0 7px 0 rgba(90,8,8,.7),0 9px 22px rgba(0,0,0,.35)}
+    .hpt-btn.chn-btn:hover:not(.is-active){background:rgba(230,32,32,.14);color:rgba(255,128,128,.8);transform:translateY(-2px)}
+    .hpt-btn.chn-btn.is-active{background:linear-gradient(160deg,rgba(230,32,32,.3),rgba(230,32,32,.15));border-color:rgba(230,32,32,.5);color:#ff8080;box-shadow:0 2px 0 rgba(90,8,8,.7),0 4px 18px rgba(230,32,32,.22),inset 0 1px 0 rgba(255,150,150,.15);transform:translateY(5px)}
+    .hpt-vs{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.35em;color:rgba(150,180,220,.25);flex-shrink:0}
+
+    /* ── FLOATING TOGGLE (scroll-triggered, slightly bigger) ── */
+    .perspective-float{position:fixed;bottom:28px;right:28px;z-index:200;display:flex;flex-direction:column;gap:0;border-radius:20px;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 0 1px rgba(100,160,255,.14);backdrop-filter:blur(24px);opacity:0;transform:translateY(10px);transition:opacity .4s ease,transform .4s ease;pointer-events:none}
+    .perspective-float.visible{opacity:1;transform:translateY(0);pointer-events:all}
+    .perspective-float-label{padding:8px 20px 6px;background:rgba(6,18,50,.96);font-family:'Lora',serif;font-size:9px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-align:center;border-bottom:1px solid rgba(100,160,255,.08)}
     .perspective-btn-row{display:flex}
-    .perspective-btn{appearance:none;border:0;padding:11px 18px;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .3s;background:rgba(10,28,60,.92);color:rgba(255,255,255,.45);flex:1}
-    .perspective-btn:hover{color:rgba(255,255,255,.8)}
-    .perspective-btn.usa-view.active{background:linear-gradient(135deg,rgba(26,108,255,.35),rgba(26,108,255,.2));color:#7ab4ff;box-shadow:inset 0 1px 0 rgba(100,180,255,.2)}
-    .perspective-btn.china-view.active{background:linear-gradient(135deg,rgba(230,32,32,.35),rgba(230,32,32,.2));color:#ff8080;box-shadow:inset 0 1px 0 rgba(255,100,100,.2)}
+    .perspective-btn{appearance:none;border:0;padding:14px 24px;font-family:'Lora',Georgia,serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .28s;background:rgba(6,18,50,.96);color:rgba(255,255,255,.38);flex:1}
+    .perspective-btn:hover{color:rgba(255,255,255,.75)}
+    .perspective-btn.usa-view.active{background:linear-gradient(135deg,rgba(26,108,255,.3),rgba(26,108,255,.16));color:#7ab4ff;box-shadow:inset 0 1px 0 rgba(100,180,255,.18)}
+    .perspective-btn.china-view.active{background:linear-gradient(135deg,rgba(230,32,32,.3),rgba(230,32,32,.16));color:#ff8080;box-shadow:inset 0 1px 0 rgba(255,100,100,.18)}
     .perspective-flash{position:fixed;inset:0;z-index:900;pointer-events:none;opacity:0;transition:opacity .2s}
     .perspective-flash.show{opacity:1}
+
+    /* ── ACCORDION (3-D tabs) ── */
+    .acc-tab-strip-label{text-align:center;font-family:'Lora',serif;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(100,160,255,.32);margin-bottom:8px;display:flex;align-items:center;gap:10px;justify-content:center}
+    .acc-tab-strip-label span{flex:1;height:1px;background:rgba(100,160,255,.09)}
+    .acc-tabs{display:flex;gap:10px;margin-bottom:0}
+    .acc-tab{flex:1;appearance:none;border:none;border-radius:18px 18px 0 0;padding:20px 26px 22px;font-family:'Lora',Georgia,serif;font-size:14px;font-weight:600;cursor:pointer;text-align:left;line-height:1.35;transition:all .28s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden}
+    .acc-tab[data-panel="swimmingCard"]{background:linear-gradient(145deg,#0e4a8a,#0a2d5e);color:rgba(120,200,255,.58);box-shadow:0 8px 0 #061a3a,0 10px 22px rgba(0,0,0,.38),inset 0 1px 0 rgba(100,180,255,.13)}
+    .acc-tab[data-panel="swimmingCard"]::before{content:'\01F3CA';font-size:22px;display:block;margin-bottom:6px;filter:grayscale(.5);transition:filter .2s}
+    .acc-tab[data-panel="swimmingCard"]:hover{background:linear-gradient(145deg,#1460a8,#0d3a78);color:rgba(160,220,255,.78);transform:translateY(-2px);box-shadow:0 10px 0 #061a3a,0 13px 28px rgba(0,0,0,.42),inset 0 1px 0 rgba(100,180,255,.18)}
+    .acc-tab[data-panel="swimmingCard"]:hover::before,.acc-tab[data-panel="swimmingCard"].is-active::before{filter:grayscale(0)}
+    .acc-tab[data-panel="swimmingCard"].is-active{background:linear-gradient(145deg,#1a6cff,#0f44bb);color:#fff;box-shadow:0 2px 0 #061a3a,0 4px 18px rgba(26,108,255,.3),inset 0 1px 0 rgba(200,230,255,.22);transform:translateY(4px)}
+    .acc-tab[data-panel="divingCard"]{background:linear-gradient(145deg,#064040,#032626);color:rgba(60,220,200,.52);box-shadow:0 8px 0 #021818,0 10px 22px rgba(0,0,0,.38),inset 0 1px 0 rgba(0,220,200,.1)}
+    .acc-tab[data-panel="divingCard"]::before{content:'\01F93F';font-size:22px;display:block;margin-bottom:6px;filter:grayscale(.5);transition:filter .2s}
+    .acc-tab[data-panel="divingCard"]:hover{background:linear-gradient(145deg,#0a5858,#063838);color:rgba(80,240,220,.78);transform:translateY(-2px);box-shadow:0 10px 0 #021818,0 13px 28px rgba(0,0,0,.42),inset 0 1px 0 rgba(0,220,200,.18)}
+    .acc-tab[data-panel="divingCard"]:hover::before,.acc-tab[data-panel="divingCard"].is-active::before{filter:grayscale(0)}
+    .acc-tab[data-panel="divingCard"].is-active{background:linear-gradient(145deg,#06b6b0,#048a84);color:#fff;box-shadow:0 2px 0 #021818,0 4px 18px rgba(6,182,170,.32),inset 0 1px 0 rgba(200,255,250,.22);transform:translateY(4px)}
+    .acc-tab[data-panel="divingCard"]:not(.is-active)::after{content:'Try it';position:absolute;top:10px;right:12px;padding:3px 9px;border-radius:999px;background:rgba(6,182,170,.22);border:1px solid rgba(6,182,170,.4);font-family:'Lora',serif;font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#3dffd8;animation:tabPulse 2.2s ease-in-out infinite}
+    @keyframes tabPulse{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
+    .acc-panel{overflow:hidden;max-height:0;transition:max-height .55s cubic-bezier(.4,0,.2,1)}
+    .acc-panel.is-open{max-height:5000px}
+    .acc-panel>.card{border-top-left-radius:0;border-top-right-radius:0}
 
     /* ── LAYOUT ── */
     .wrap{position:relative;z-index:1;max-width:1380px;margin:0 auto;padding:0 22px 120px}
@@ -60,7 +106,7 @@
     .hero-bg-img{position:absolute;inset:0;background:url('China-USA_Easy-Resize_com_.jpg') center/cover no-repeat;opacity:.08;filter:blur(2px) saturate(.4)}
     .hero-bg-overlay{position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 50% 40%,rgba(26,108,255,.07) 0%,transparent 70%),linear-gradient(180deg,transparent 0%,var(--bg) 100%)}
 
-    .hero-kicker{position:relative;display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:999px;border:1px solid rgba(26,108,255,.3);background:rgba(26,108,255,.08);font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#7ab4ff;margin-bottom:28px;animation:fadeUp .8s .1s both}
+    .hero-kicker{position:relative;display:inline-flex;align-items:center;gap:8px;padding:7px 16px;border-radius:999px;border:1px solid var(--accent-30);background:var(--accent-08);font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:#7ab4ff;margin-bottom:28px;animation:fadeUp .8s .1s both}
     .pulse-dot{width:6px;height:6px;border-radius:50%;background:#7ab4ff;animation:pulseRing 2s infinite}
     @keyframes pulseRing{0%{box-shadow:0 0 0 0 rgba(122,180,255,.6)}70%{box-shadow:0 0 0 7px rgba(122,180,255,0)}100%{box-shadow:0 0 0 0 rgba(122,180,255,0)}}
 
@@ -73,12 +119,12 @@
     .hero-title .word-chn{color:var(--chn)}
     .hero-title .word-vs{font-size:.5em;color:var(--muted);display:block;margin:.12em 0}
 
-    .hero-subtitle{position:relative;max-width:560px;margin:0 auto 20px;font-size:16px;line-height:1.7;color:#8aaccc;animation:fadeUp .8s .4s both}
-    .hero-hook-line{position:relative;max-width:540px;margin:0 auto 42px;padding:20px 24px;border-radius:16px;background:rgba(26,108,255,.07);border:1px solid rgba(26,108,255,.18);font-size:15px;font-weight:600;color:var(--ink);line-height:1.5;animation:fadeUp .8s .5s both}
+    .hero-subtitle{position:relative;max-width:560px;margin:0 auto 20px;font-family:'Lora',serif;font-size:16px;line-height:1.85;color:#8aaccc;animation:fadeUp .8s .4s both}
+    .hero-hook-line{position:relative;max-width:540px;margin:0 auto 42px;padding:20px 24px;border-radius:16px;background:var(--accent-08);border:1px solid var(--accent-18);font-family:'Lora',Georgia,serif;font-size:15px;font-style:italic;font-weight:400;color:var(--ink);line-height:1.5;animation:fadeUp .8s .5s both}
 
     .hero-chips{position:relative;display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:52px;animation:fadeUp .8s .55s both}
     .hero-chip{padding:8px 18px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase}
-    .hero-chip.usa-chip{background:rgba(26,108,255,.15);border:1px solid rgba(26,108,255,.3);color:#7ab4ff}
+    .hero-chip.usa-chip{background:rgba(26,108,255,.15);border:1px solid rgba(26,108,255,.3);color:var(--accent-light)}
     .hero-chip.chn-chip{background:rgba(230,32,32,.12);border:1px solid rgba(230,32,32,.28);color:#ff9090}
 
     .hero-scroll-cue{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:rgba(100,160,255,.4);animation:fadeUp .8s .7s both}
@@ -98,16 +144,17 @@
     .viz-section{margin:0 0 72px;scroll-margin-top:72px}
     .section-head{display:flex;align-items:flex-end;gap:24px;margin-bottom:22px;flex-wrap:wrap}
     .section-badge{display:flex;align-items:center;gap:10px}
-    .section-num{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,rgba(26,108,255,.25),rgba(26,108,255,.08));border:1px solid rgba(26,108,255,.3);font-family:'Syne',sans-serif;font-size:14px;font-weight:800;color:#7ab4ff}
+    .section-num{display:inline-flex;align-items:center;justify-content:center;width:38px;height:38px;border-radius:12px;background:linear-gradient(135deg,var(--accent-25),var(--accent-08));border:1px solid var(--accent-30);font-family:'Playfair Display',Georgia,serif;font-size:14px;font-weight:800;color:var(--accent-light)}
     .section-label{font-size:10px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
-    .section-title{margin:0;font-family:'Syne',sans-serif;font-size:clamp(20px,2.8vw,30px);font-weight:800;color:var(--ink);letter-spacing:-.02em;flex:1}
+    .section-title{margin:0;font-family:'Playfair Display',Georgia,serif;font-size:clamp(20px,2.8vw,28px);font-weight:700;color:var(--ink);letter-spacing:-.02em;flex:1}
+    .section-subtitle{margin:5px 0 0;font-family:'Lora',Georgia,serif;font-size:14px;line-height:1.6;color:var(--muted);max-width:820px}
     .aqua-glow{text-shadow:0 0 30px rgba(26,200,255,.3)}
 
     /* ── CARD ── */
-    .card{background:linear-gradient(140deg,rgba(12,28,58,.82),rgba(6,18,40,.92));border:1px solid var(--card-border);border-radius:24px;padding:28px 28px 22px;box-shadow:0 24px 60px rgba(0,0,10,.3),0 1px 0 rgba(100,160,255,.08) inset;backdrop-filter:blur(12px);position:relative;overflow:hidden}
+    .card{background:linear-gradient(140deg,var(--card-bg-a),var(--card-bg-b));border:1px solid var(--card-border);transition:background 0.7s ease,border-color 0.7s ease;border-radius:24px;padding:28px 28px 22px;box-shadow:0 24px 60px rgba(0,0,10,.3),0 1px 0 rgba(100,160,255,.08) inset;backdrop-filter:blur(12px);position:relative;overflow:hidden}
     .card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(100,180,255,.25),transparent)}
-    .card p{margin:8px 0 14px;color:var(--muted);line-height:1.65;font-size:14px}
-    .card.card-usa{border-left:3px solid rgba(26,108,255,.5)}
+    .card p{margin:8px 0 14px;color:var(--muted);line-height:1.75;font-size:14px;font-family:'Lora',Georgia,serif}
+    .card.card-usa{border-left:3px solid var(--accent-45)}
     .card.card-chn{border-left:3px solid rgba(230,32,32,.5)}
     .card.card-aqua{border-left:3px solid rgba(0,200,255,.45)}
     .card.card-gold{border-left:3px solid rgba(240,192,64,.5)}
@@ -115,35 +162,35 @@
     /* ── RIVALRY STRIP ── */
     .rivalry-strip{display:grid;grid-template-columns:1fr auto;gap:28px;align-items:center;padding:42px 0 38px;border-bottom:1px solid rgba(100,160,255,.08);margin-bottom:56px}
     .rivalry-text{display:grid;gap:10px}
-    .rivalry-kicker{display:inline-flex;align-items:center;justify-self:start;padding:6px 14px;border-radius:999px;background:rgba(26,108,255,.12);border:1px solid rgba(26,108,255,.25);font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#7ab4ff}
-    .rivalry-title{margin:0;font-family:'Syne',sans-serif;font-size:clamp(22px,3vw,34px);font-weight:800;color:var(--ink);letter-spacing:-.03em}
-    .rivalry-copy{margin:0;color:var(--muted);font-size:14px;line-height:1.75;max-width:62ch}
+    .rivalry-kicker{display:inline-flex;align-items:center;justify-self:start;padding:6px 14px;border-radius:999px;background:var(--accent-12);border:1px solid var(--accent-25);font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-light)}
+    .rivalry-title{margin:0;font-family:'Playfair Display',Georgia,serif;font-size:clamp(22px,3vw,34px);font-weight:700;color:var(--ink);letter-spacing:-.02em}
+    .rivalry-copy{margin:0;color:var(--muted);font-family:'Lora',Georgia,serif;font-size:14px;line-height:1.9;max-width:62ch}
     .stat-chips{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0 0}
-    .stat-chip{padding:10px 18px;border-radius:14px;background:rgba(26,108,255,.07);border:1px solid rgba(26,108,255,.15);text-align:center}
-    .stat-chip-num{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:#7ab4ff;display:block}
+    .stat-chip{padding:10px 18px;border-radius:14px;background:var(--accent-08);border:1px solid var(--accent-15);text-align:center}
+    .stat-chip-num{font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:800;color:#7ab4ff;display:block}
     .stat-chip-label{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
     .scroll-nav{display:flex;flex-direction:column;gap:6px}
-    .scroll-nav a{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:12px;background:rgba(26,108,255,.08);border:1px solid rgba(26,108,255,.15);color:#7ab4ff;font-size:12px;font-weight:700;letter-spacing:.04em;text-decoration:none;transition:all .2s;white-space:nowrap}
-    .scroll-nav a:hover{background:rgba(26,108,255,.18);border-color:rgba(26,108,255,.35);transform:translateX(4px)}
+    .scroll-nav a{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:12px;background:var(--accent-08);border:1px solid var(--accent-15);color:var(--accent-light);font-size:12px;font-weight:700;letter-spacing:.04em;text-decoration:none;transition:all .2s;white-space:nowrap}
+    .scroll-nav a:hover{background:var(--accent-18);border-color:var(--accent-35);transform:translateX(4px)}
     .nav-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
 
     /* ── SPORT PARK ── */
     .sportpark-section{margin-bottom:64px}
     .sportpark-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:18px}
     .sportpark-copy{display:grid;gap:6px;max-width:56ch}
-    .sportpark-eyebrow{display:inline-flex;align-items:center;justify-self:start;padding:6px 11px;border-radius:999px;background:rgba(26,108,255,.1);border:1px solid rgba(26,108,255,.2);color:#7ab4ff;font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
-    .sportpark-title{margin:0;font-family:'Syne',sans-serif;font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
+    .sportpark-eyebrow{display:inline-flex;align-items:center;justify-self:start;padding:6px 11px;border-radius:999px;background:var(--accent-10);border:1px solid var(--accent-20);color:var(--accent-light);font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase}
+    .sportpark-title{margin:0;font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:800;letter-spacing:-.03em;color:var(--ink)}
     .sportpark-note{margin:0;font-size:13px;line-height:1.55;color:var(--muted)}
-    .sportpark-count{display:inline-flex;align-items:center;justify-content:center;min-width:110px;padding:9px 14px;border-radius:999px;background:rgba(26,108,255,.1);border:1px solid rgba(26,108,255,.2);color:#7ab4ff;font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
+    .sportpark-count{display:inline-flex;align-items:center;justify-content:center;min-width:110px;padding:9px 14px;border-radius:999px;background:var(--accent-10);border:1px solid var(--accent-20);color:var(--accent-light);font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap}
 
     /* ── CONTROLS ── */
     .controls{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:14px 0 10px}
     .control-label{font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
-    .year-badge{padding:4px 12px;border-radius:8px;background:rgba(26,108,255,.15);border:1px solid rgba(26,108,255,.25);font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#7ab4ff;min-width:68px;text-align:center}
-    input[type=range]{width:480px;max-width:100%;accent-color:#1a6cff}
+    .year-badge{padding:4px 12px;border-radius:8px;background:var(--accent-15);border:1px solid var(--accent-25);font-family:'Playfair Display',Georgia,serif;font-size:18px;font-weight:800;color:#7ab4ff;min-width:68px;text-align:center}
+    input[type=range]{width:480px;max-width:100%;accent-color:var(--accent)}
     .legend{display:flex;gap:16px;align-items:center;flex-wrap:wrap;margin:8px 0;color:var(--muted);font-size:13px}
     .swatch{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:5px}
-    .gap-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:rgba(26,108,255,.08);border:1px solid rgba(26,108,255,.15);font-size:12px;font-weight:700;color:var(--muted);margin:6px 0 10px}
+    .gap-pill{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:999px;background:var(--accent-08);border:1px solid var(--accent-15);font-family:'Lora',serif;font-size:12px;font-weight:700;color:var(--muted);margin:6px 0 10px}
 
     /* ── ACCORDION ── */
     .acc-tabs{display:flex;gap:8px;margin-bottom:0}
@@ -158,7 +205,7 @@
     .two-col{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     @media(max-width:860px){.two-col{grid-template-columns:1fr}}
     .pool-label{display:flex;align-items:center;gap:8px;padding:8px 0 6px}
-    .pool-label-text{font-family:'Syne',sans-serif;font-size:13px;font-weight:800;color:var(--muted)}
+    .pool-label-text{font-family:'Playfair Display',Georgia,serif;font-size:13px;font-weight:800;color:var(--muted)}
 
     /* ── VIZ HOST ── */
     .viz{width:100%;overflow-x:auto}
@@ -167,9 +214,9 @@
     /* ── FILTER PILLS ── */
     .filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:0 0 10px}
     .filter-pills{display:flex;gap:8px;flex-wrap:wrap}
-    .filter-pill{appearance:none;border:1px solid rgba(100,160,255,.15);border-radius:999px;padding:8px 14px;background:rgba(26,108,255,.06);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
+    .filter-pill{appearance:none;border:1px solid rgba(100,160,255,.15);border-radius:999px;padding:8px 14px;background:var(--accent-06);color:var(--muted);font-family:'Lora',serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
     .filter-pill:hover{color:var(--ink);border-color:rgba(26,108,255,.3)}
-    .filter-pill.is-active{background:rgba(26,108,255,.2);border-color:rgba(26,108,255,.45);color:#7ab4ff}
+    .filter-pill.is-active{background:var(--accent-20);border-color:var(--accent-45);color:var(--accent-light)}
     .mode-summary{margin:0 0 8px;color:var(--muted);font-size:13px}
 
     /* ── TOOLTIP ── */
@@ -179,16 +226,210 @@
     /* ── MISC ── */
     .small{font-size:12px;color:var(--muted);line-height:1.5}
     label{font-weight:600;color:var(--muted);font-size:13px}
-    input[type=checkbox]{accent-color:#1a6cff}
-    #raceModeSummary{padding:10px 16px;border-radius:12px;background:rgba(26,108,255,.06);border:1px solid rgba(26,108,255,.1);font-size:13px;color:var(--muted);margin-top:8px}
+    input[type=checkbox]{accent-color:var(--accent)}
+    #raceModeSummary{padding:10px 16px;border-radius:12px;background:var(--accent-06);border:1px solid var(--accent-10);font-size:13px;color:var(--muted);margin-top:8px}
     .footer{border-top:1px solid rgba(100,160,255,.08);padding:32px 0 0;text-align:center;color:rgba(100,140,200,.3);font-size:12px;letter-spacing:.06em}
 
-    /* ── DIVING CURSOR ── */
-    #divingCard .card{cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Ccircle cx='31' cy='5' r='4' fill='%231a6cff' stroke='white' stroke-width='1.5'/%3E%3Cline x1='31' y1='9' x2='20' y2='21' stroke='%231a6cff' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='20' y1='21' x2='7' y2='17' stroke='%231a6cff' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='31' y1='9' x2='37' y2='7' stroke='%231a6cff' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='20' y1='21' x2='27' y2='33' stroke='%231a6cff' stroke-width='2.5' stroke-linecap='round'/%3E%3Cline x1='27' y1='33' x2='23' y2='38' stroke='%231a6cff' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") 20 5,crosshair}
+    /* ── DIVING CURSOR — handled by JS (GIF swap above/below waterline) ── */
+    #divingCard .viz svg { cursor: none; }
+    /* cursor GIF element */
+    #dive-cursor-el img { transition: opacity .12s; }
 
     /* ── RESPONSIVE ── */
     @media(max-width:860px){.rivalry-strip{grid-template-columns:1fr}.scroll-nav{flex-direction:row;flex-wrap:wrap}.hero-title{font-size:clamp(48px,12vw,80px)}.perspective-float{bottom:16px;right:16px}}
     @media(max-width:640px){.wrap{padding:0 14px 60px}.card{padding:18px 16px}.hero{padding:60px 16px 80px}}
+
+    /* ═══ MEDAL MODE — body classes set by scale_visual.js ═══
+       When user scrolls into viz4, body gets mode-gold / mode-silver / etc.
+       These override the main page --ink, --muted, --accent vars so the
+       whole page tints to match the selected medal type.
+       ═══════════════════════════════════════════════════════ */
+    body.mode-total {
+      --page-top:#050913; --page-bottom:#17111a;
+      --glow-a:rgba(59,130,246,.34); --glow-b:rgba(239,68,68,.3);
+      --ink:#f8fbff; --muted:#c4d1e5;
+      --panel-bg:rgba(8,13,24,.84); --panel-alt:rgba(28,20,30,.82);
+      --shell-bg:rgba(8,10,21,.94);
+      --accent:#dfe8f6; --accent-light:#65b9ff;
+      --accent-soft:#65b9ff; --accent-deep:#ff6170;
+      --accent-glow:rgba(117,164,255,.26);
+      --ghost-bg:rgba(255,255,255,.08); --sheen:rgba(255,255,255,.08);
+      --card-shadow:rgba(0,0,0,.36); --active-ink:#09101d;
+    }
+    body.mode-gold {
+      --page-top:#120d05; --page-bottom:#2c1a07;
+      --glow-a:rgba(243,202,96,.36); --glow-b:rgba(161,101,17,.24);
+      --ink:#fff7e2; --muted:#efdba6;
+      --panel-bg:rgba(36,23,6,.8); --panel-alt:rgba(60,39,10,.78);
+      --shell-bg:rgba(20,12,2,.92);
+      --accent:#efcb6d; --accent-light:#fff2b5;
+      --accent-soft:#fff2b5; --accent-deep:#a96e14;
+      --accent-glow:rgba(239,203,109,.34);
+      --ghost-bg:rgba(255,244,211,.08); --sheen:rgba(255,240,194,.12);
+      --card-shadow:rgba(0,0,0,.4); --active-ink:#261604;
+    }
+    body.mode-silver {
+      --page-top:#0c121a; --page-bottom:#1d2734;
+      --glow-a:rgba(213,221,232,.24); --glow-b:rgba(133,146,165,.22);
+      --ink:#f6f9fd; --muted:#ccd5e2;
+      --panel-bg:rgba(17,24,35,.8); --panel-alt:rgba(33,43,58,.78);
+      --shell-bg:rgba(11,17,26,.92);
+      --accent:#dbe3ee; --accent-light:#f6fbff;
+      --accent-soft:#f6fbff; --accent-deep:#8b99ad;
+      --accent-glow:rgba(219,227,238,.28);
+      --ghost-bg:rgba(246,251,255,.08); --sheen:rgba(255,255,255,.12);
+      --card-shadow:rgba(0,0,0,.38); --active-ink:#121922;
+    }
+    body.mode-bronze {
+      --page-top:#140c08; --page-bottom:#32180f;
+      --glow-a:rgba(211,138,76,.32); --glow-b:rgba(122,53,21,.24);
+      --ink:#fff1e8; --muted:#e8c7b0;
+      --panel-bg:rgba(33,18,12,.8); --panel-alt:rgba(58,28,18,.78);
+      --shell-bg:rgba(20,10,7,.92);
+      --accent:#d79258; --accent-light:#ffd1aa;
+      --accent-soft:#ffd1aa; --accent-deep:#8d4c26;
+      --accent-glow:rgba(215,146,88,.3);
+      --ghost-bg:rgba(255,230,214,.08); --sheen:rgba(255,214,189,.11);
+      --card-shadow:rgba(0,0,0,.4); --active-ink:#24120a;
+    }
+
+    /* When any medal mode active — override body background */
+    body.mode-total, body.mode-gold, body.mode-silver, body.mode-bronze {
+      background:
+        radial-gradient(circle at 18% 16%, var(--glow-a), transparent 24%),
+        radial-gradient(circle at 82% 10%, var(--glow-b), transparent 28%),
+        linear-gradient(180deg, var(--page-top) 0%, var(--page-bottom) 100%) !important;
+      transition: background .45s ease;
+    }
+
+    /* ── Race scale control panel ── */
+    .race-control-panel {
+      background: linear-gradient(160deg, var(--panel-bg,rgba(8,13,24,.84)) 0%, var(--panel-alt,rgba(28,20,30,.82)) 100%);
+      box-shadow: 0 28px 60px var(--card-shadow,rgba(0,0,0,.36)), inset 0 1px 0 var(--sheen,rgba(255,255,255,.08));
+      border-radius: 28px; padding: 18px; display: grid; gap: 14px;
+      transition: background .45s ease, box-shadow .45s ease;
+    }
+    .race-control-top {
+      display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 14px; align-items: start;
+    }
+    .race-filter-row { display: grid; gap: 10px; }
+    .race-filter-label {
+      font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase;
+      color: var(--muted);
+    }
+    .race-filter-pills, .race-playback { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .race-playback { justify-content: flex-end; }
+    .race-btn, .race-speed, .race-filter-pill {
+      appearance: none; border: 0; border-radius: 999px;
+      font-family: 'Lora', Georgia, serif; font-size: 13px; font-weight: 700; letter-spacing: .06em;
+      transition: transform .18s, box-shadow .18s, background .25s, color .25s;
+      cursor: pointer;
+    }
+    .race-btn, .race-speed { padding: 11px 16px; }
+    .race-btn {
+      text-transform: uppercase; color: var(--active-ink,#09101d);
+      background: linear-gradient(135deg, var(--accent-soft,#65b9ff) 0%, var(--accent,#dfe8f6) 52%, var(--accent-deep,#ff6170) 100%);
+      box-shadow: 0 12px 24px var(--accent-glow,rgba(117,164,255,.26));
+    }
+    .race-btn.secondary, .race-speed, .race-filter-pill {
+      color: var(--ink); background: var(--ghost-bg,rgba(255,255,255,.08));
+      box-shadow: inset 0 1px 0 var(--sheen,rgba(255,255,255,.08));
+    }
+    .race-filter-pill { cursor: pointer; padding: 10px 14px; color: var(--muted); }
+    .race-filter-pill.is-active {
+      color: var(--active-ink,#09101d);
+      background: linear-gradient(135deg, var(--accent-soft,#65b9ff) 0%, var(--accent,#dfe8f6) 52%, var(--accent-deep,#ff6170) 100%);
+      box-shadow: 0 12px 24px var(--accent-glow,rgba(117,164,255,.26));
+    }
+    .race-btn:hover, .race-filter-pill:hover, .race-speed:hover { transform: translateY(-1px); }
+    .race-scrub-row {
+      display: grid; grid-template-columns: minmax(0,1fr) auto auto; gap: 14px; align-items: center;
+    }
+    .race-year-readout {
+      min-width: 92px; text-align: right; font-family: 'Playfair Display',serif;
+      font-weight: 900; font-size: 28px; letter-spacing: -.04em; color: var(--accent);
+    }
+    .race-headline {
+      color: var(--ink); font-family: 'Playfair Display',Georgia,serif;
+      font-size: 20px; line-height: 1.25; font-weight: 700; letter-spacing: -.02em;
+    }
+    .race-statline { color: var(--muted); font-family: 'Lora',serif; font-size: 14px; line-height: 1.6; }
+    .race-caption  { min-height: 20px; color: var(--muted); font-family: 'Lora',serif; font-size: 13px; }
+    .race-play-state { font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+    .race-viz-shell {
+      position: relative; overflow: hidden; padding: 16px 16px 8px; border-radius: 32px;
+      background: linear-gradient(180deg, var(--shell-bg,rgba(8,10,21,.94)) 0%, var(--panel-alt,rgba(28,20,30,.82)) 100%);
+      box-shadow: 0 28px 60px var(--card-shadow,rgba(0,0,0,.36)), inset 0 1px 0 var(--sheen,rgba(255,255,255,.08));
+      transition: background .45s ease;
+    }
+    .race-viz-shell::before {
+      content:""; position:absolute; inset:0; pointer-events:none; opacity:.85;
+      background:
+        radial-gradient(circle at 50% 18%, var(--accent-glow,rgba(117,164,255,.26)), transparent 30%),
+        radial-gradient(circle at 18% 78%, var(--glow-a,rgba(59,130,246,.34)), transparent 28%),
+        radial-gradient(circle at 82% 74%, var(--glow-b,rgba(239,68,68,.3)), transparent 28%);
+    }
+    @media(max-width:900px){
+      .race-control-top, .race-scrub-row { grid-template-columns: 1fr; }
+      .race-playback { justify-content: flex-start; }
+      .race-year-readout { text-align: left; }
+    }
+
+
+    /* viz1 2D toggle button uses inline styles */
+
+    /* ═══ VIZ1 3D CONTROLS ═══ */
+    .viz1-3d { height:550px!important; overflow:hidden; border-radius:14px; cursor:grab; }
+    .viz1-3d:active { cursor:grabbing; }
+    .viz1-controls {
+      display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+      padding:14px 0 16px;
+    }
+    .v3d-btn {
+      appearance:none; border:1px solid rgba(100,160,255,.2);
+      background:rgba(10,24,58,.6); color:var(--muted);
+      padding:8px 16px; border-radius:10px;
+      font-size:12px; font-weight:600; font-family:'Lora',serif; letter-spacing:.04em;
+      cursor:pointer; transition:all .2s;
+    }
+    .v3d-btn:hover, .v3d-btn.v3d-btn-active {
+      color:#7ab4ff; border-color:rgba(26,108,255,.4); background:rgba(26,108,255,.12);
+    }
+    .v3d-mode-toggle {
+      display:flex; border-radius:12px; overflow:hidden;
+      border:1px solid rgba(100,160,255,.18); background:rgba(6,16,40,.5);
+    }
+    .v3d-mode-btn {
+      appearance:none; border:0; padding:8px 18px;
+      font-size:12px; font-weight:700; letter-spacing:.06em;
+      font-family:'Lora',serif; cursor:pointer; transition:all .22s;
+      background:transparent; color:var(--muted);
+    }
+    .v3d-mode-btn:hover { color:var(--ink); }
+    .v3d-mode-btn.v3d-mode-active {
+      background:rgba(26,108,255,.22); color:#7ab4ff;
+      box-shadow:inset 0 1px 0 rgba(100,180,255,.18);
+    }
+    body.mode-gold .v3d-mode-btn.v3d-mode-active,
+    body.mode-silver .v3d-mode-btn.v3d-mode-active,
+    body.mode-bronze .v3d-mode-btn.v3d-mode-active {
+      background:rgba(var(--accent-vm),0.22); color:var(--accent-vm);
+    }
+    .v3d-sep {
+      font-size:10px; font-weight:700; letter-spacing:.15em; text-transform:uppercase;
+      color:var(--muted); padding:0 4px;
+    }
+    .v3d-pill {
+      appearance:none; border:1px solid rgba(100,160,255,.14);
+      background:rgba(10,24,58,.45); color:var(--muted);
+      padding:6px 13px; border-radius:999px;
+      font-size:12px; font-weight:600; font-family:'Lora',serif;
+      cursor:pointer; transition:all .2s;
+    }
+    .v3d-pill:hover { color:var(--ink); border-color:rgba(100,160,255,.28); }
+    .v3d-pill.v3d-pill-active {
+      color:#7ab4ff; background:rgba(26,108,255,.18); border-color:rgba(26,108,255,.4);
+    }
   </style>
 </head>
 <body>
@@ -215,7 +456,7 @@
 
 <!-- FLOATING PERSPECTIVE TOGGLE -->
 <div class="perspective-float">
-  <div class="perspective-float-label">Perspective</div>
+  <div class="perspective-float-label">View As</div>
   <div class="perspective-btn-row">
     <button class="perspective-btn usa-view active" data-perspective="usa" type="button">🇺🇸 USA</button>
     <button class="perspective-btn china-view"      data-perspective="china" type="button">🇨🇳 China</button>
@@ -249,6 +490,25 @@
       <span class="hero-chip usa-chip" id="themeChip0">Historical Dominator</span>
       <span class="hero-chip chn-chip" id="themeChip1">Rising Challenger</span>
     </div>
+
+    <!-- BIG HERO PERSPECTIVE TOGGLE -->
+    <div class="hero-perspective-toggle" id="heroPerspective">
+      <div class="hpt-eyebrow">Choose your perspective</div>
+      <div class="hpt-row">
+        <button class="hpt-btn usa-btn is-active" data-perspective="usa" type="button">
+          <span class="hpt-flag">&#127482;&#127480;</span>
+          <span class="hpt-name">Team USA</span>
+          <span class="hpt-sub" id="heroChip0">Historical Dominator</span>
+        </button>
+        <div class="hpt-vs">VS</div>
+        <button class="hpt-btn chn-btn" data-perspective="china" type="button">
+          <span class="hpt-flag">&#127464;&#127475;</span>
+          <span class="hpt-name">Team China</span>
+          <span class="hpt-sub" id="heroChip1">Rising Challenger</span>
+        </button>
+      </div>
+    </div>
+
     <div class="hero-scroll-cue">
       Scroll to explore
       <div class="scroll-arrow">
@@ -301,22 +561,13 @@
         <div class="section-num">1</div>
         <div class="section-label">Medal Count</div>
       </div>
-      <h2 class="section-title" id="dominanceTitle">Medals — USA dominance, and who's closest each year</h2>
+      <h2 class="section-title" id="dominanceTitle">USA vs China — Olympic Medals by Sport, 1984–2024</h2>
+      <p class="section-subtitle" id="dominanceSubtitle">Each tower stacks Gold / Silver / Bronze for one country across 10 sports and 11 Games. <span style="opacity:.7">Drag to orbit · scroll to zoom · filter by year · switch perspective to spotlight a country.</span></p>
     </div>
     <div class="card card-usa">
-      <p>The stacked area shows <b>USA event‑medal volume</b> over time (team events counted once, split gold/silver/bronze). The dashed challenger line tracks the <b>closest non‑USA team each year</b> — revealing when China starts closing the gap after the 1980s.</p>
-      <div class="legend">
-        <span><span class="swatch" style="background:var(--gold)"></span>Gold</span>
-        <span><span class="swatch" style="background:var(--silver)"></span>Silver</span>
-        <span><span class="swatch" style="background:var(--bronze)"></span>Bronze</span>
-        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none">
-          <input id="toggleChallenger" type="checkbox" checked />
-          <span class="swatch" style="background:rgba(122,180,255,.5);border:1px dashed rgba(122,180,255,.5)"></span>
-          Closest challenger (dashed)
-        </label>
-      </div>
-      <div id="viz1" class="viz"></div>
-      <p class="small" style="margin-top:12px">Event medals: team events counted once per event (de-duplicated athlete rows).</p>
+      <div id="viz1Controls" class="viz1-controls"></div>
+      <div id="viz1" class="viz viz1-3d"></div>
+      <p style="margin-top:8px;font-size:12.5px;color:#6a3a10;font-family:Lora,serif;font-style:italic">🥇 Gold on top &nbsp;·&nbsp; 🥈 Silver in middle &nbsp;·&nbsp; 🥉 Bronze at base &nbsp;|&nbsp; Event medals — team events counted once &nbsp;·&nbsp; Top 10 sports by combined USA+China medals</p>
     </div>
   </div>
 
@@ -332,37 +583,48 @@
       <h2 class="section-title aqua-glow">Swimming &amp; Diving — where the rivalry runs deepest</h2>
     </div>
 
+        <div class="acc-tab-strip-label"><span></span>Choose a lens to explore<span></span></div>
     <div class="acc-tabs" role="tablist">
-      <button class="acc-tab is-active" data-panel="swimmingCard" role="tab" aria-selected="true">🏊 Swimming — China catching up in the pool</button>
-      <button class="acc-tab"           data-panel="divingCard"   role="tab" aria-selected="false">🤿 Diving — medal flow as a wave</button>
+      <button class="acc-tab is-active" data-panel="swimmingCard" role="tab" aria-selected="true">
+        Swimming &mdash; medals in the pool, year by year
+        <div style="font-size:11px;font-weight:400;opacity:.62;margin-top:4px">Medal dots by year &middot; scrub the slider</div>
+      </button>
+      <button class="acc-tab" data-panel="divingCard" role="tab" aria-selected="false">
+        Diving &mdash; medal flow as a wave
+        <div style="font-size:11px;font-weight:400;opacity:.62;margin-top:4px">CHN above water &middot; USA below &middot; custom cursor</div>
+      </button>
     </div>
 
     <div class="acc-panel is-open" id="swimmingCard" role="tabpanel">
       <div class="card card-aqua">
-        <h3 id="swimmingTitle" style="margin:0 0 6px;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--ink)">Swimming lanes — China catching up in the pool</h3>
-        <p>Each dot is one <b>swimming medal (athlete‑medal)</b>. Medals fill 8 lanes using center‑lane emphasis, cycling outward for stable composition. Scrub the year slider to watch the story evolve.</p>
-        <div class="controls">
-          <span class="control-label">Olympic year:</span>
-          <div class="year-badge" id="swimYearLabel">—</div>
-          <input id="yearSlider" type="range" />
+        <!-- All DOM IDs expected by viz2_swimming.js (renderSwimmingPools) -->
+        <div class="controls" style="margin-bottom:8px;">
+          <span class="control-label">Year:</span>
+          <input id="yearSlider" type="range" style="width:260px;" />
+          <span id="swimYearLabel" class="year-badge">—</span>
         </div>
-        <div class="gap-pill" id="gapText">Loading…</div>
-        <div class="two-col">
-          <div>
-            <div class="pool-label"><span style="font-size:20px">🇺🇸</span><span class="pool-label-text" id="swimUSALabel">USA • Swimming medals: 0</span></div>
-            <div id="swimUSA" class="viz"></div>
-          </div>
-          <div>
-            <div class="pool-label"><span style="font-size:20px">🇨🇳</span><span class="pool-label-text" id="swimCHNLabel">CHN • Swimming medals: 0</span></div>
-            <div id="swimCHN" class="viz"></div>
-          </div>
-        </div>
+        <div id="gapText" class="gap-pill">Loading…</div>
+
+        <div id="swimUSALabel" style="display:none"></div>
+        <div id="swimUSA" class="viz poolContainer"></div>
+
+        <div id="swimCompareBar"></div>
+
+        <div id="swimCHNLabel" style="display:none"></div>
+        <div id="swimCHN" class="viz poolContainer"></div>
+
+        <section class="swim-story-break">
+          <h2>Paris 2024 classic finals</h2>
+          <p style="color:var(--muted);margin:0 0 14px;font-size:13px;">These direct USA–China finals show who touched first in Paris. Lower time wins.</p>
+          <div id="parisFinalsControls"></div>
+          <div id="parisFinalsHeadToHead"></div>
+        </section>
       </div>
     </div>
 
     <div class="acc-panel" id="divingCard" role="tabpanel">
       <div class="card card-aqua">
-        <h3 id="divingTitle" style="margin:0 0 6px;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--ink)">Diving — medal flow as a wave (CHN above water, USA below)</h3>
+        <h3 id="divingTitle" style="margin:0 0 6px;font-family:'Playfair Display',Georgia,serif;font-size:18px;font-weight:800;color:var(--ink)">Diving — medal flow as a wave (CHN above water, USA below)</h3>
         <p>Diving medals per year mirrored around the "waterline". The filled shapes read like a wave. Dots are individual medals stacked per year. The diver marks when the story begins to shift. <span style="font-size:11px;color:var(--muted)">✦ Hover any dot to see the event.</span></p>
         <div id="divingFlow" class="viz"></div>
         <p class="small">Athlete-medals — each individual medal counts.</p>
@@ -379,19 +641,46 @@
         <div class="section-num" style="background:linear-gradient(135deg,rgba(240,192,64,.2),rgba(240,192,64,.06));border-color:rgba(240,192,64,.35);color:#f0c040;">4</div>
         <div class="section-label">Race Scale</div>
       </div>
-      <h2 class="section-title" id="goldTitle">🥇 Gold · 🥈 Silver · 🥉 Bronze — race scale (USA vs CHN)</h2>
+      <h2 class="section-title" id="goldTitle">Gold &middot; Silver &middot; Bronze &mdash; Race Scale (USA vs CHN)</h2>
     </div>
-    <div class="card card-gold">
-      <p>Three balance scales show cumulative event-medal leadership for each medal type up to the selected year. Scroll into view to auto-play — drag the slider to take control.</p>
-      <div class="controls">
-        <span class="control-label">Year:</span>
-        <div class="year-badge" id="rivalYearLabel">—</div>
-        <input id="rivalYearSlider" type="range" />
+
+    <!-- Race Scale control panel -->
+    <div class="race-control-panel" style="margin-bottom:12px">
+      <div class="race-control-top">
+        <div class="race-filter-row">
+          <div class="race-filter-label">Race Filter</div>
+          <div id="raceModeFilters" class="race-filter-pills">
+            <button class="race-filter-pill gold-filter-btn is-active" type="button" data-mode="Total">Total medals</button>
+            <button class="race-filter-pill gold-filter-btn" type="button" data-mode="Gold">Gold medals</button>
+            <button class="race-filter-pill gold-filter-btn" type="button" data-mode="Silver">Silver medals</button>
+            <button class="race-filter-pill gold-filter-btn" type="button" data-mode="Bronze">Bronze medals</button>
+          </div>
+        </div>
+        <div class="race-playback">
+          <button id="playPauseBtn" class="race-btn" type="button">Pause</button>
+          <button id="restartBtn"   class="race-btn secondary" type="button">Restart</button>
+          <select id="speedSelect" class="race-speed" aria-label="Autoplay speed">
+            <option value="1300">Slow</option>
+            <option value="850" selected>Normal</option>
+            <option value="500">Fast</option>
+          </select>
+        </div>
       </div>
-      <div id="viz4" class="viz"></div>
-      <div id="raceModeSummary"></div>
-      <p class="small" style="margin-top:8px">Event medals: team events counted once per event.</p>
+      <div class="race-scrub-row">
+        <input id="rivalYearSlider" type="range" />
+        <div class="race-year-readout" id="rivalYearLabel">—</div>
+        <div class="race-play-state" id="playStateText">Autoplay on</div>
+      </div>
+      <div id="raceModeHeadline" class="race-headline">USA and China medal race</div>
+      <div id="raceModeSubline" class="race-statline">Event-medal basis for USA and China.</div>
+      <div id="raceModeSummary" class="race-caption">Autoplay will pause briefly at key rivalry years.</div>
     </div>
+
+    <!-- Viz shell -->
+    <div class="race-viz-shell">
+      <div id="viz4" class="viz" style="position:relative;z-index:1;width:100%;overflow:auto;"></div>
+    </div>
+    <p class="small" style="margin-top:10px;padding:0 4px">Event medals: team events counted once per event.</p>
   </div>
 
   <div class="footer">CSC316 Final Project · US–China Olympic Rivalry · Summer Games</div>
@@ -400,6 +689,7 @@
 <div id="tooltip" class="tt"></div>
 
 <!-- VIZ SCRIPTS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="sportpark.js"></script>
 <script src="viz1_dominance.js"></script>
 <script src="viz2_swimming.js"></script>
@@ -427,13 +717,20 @@
     phase: Math.random()*Math.PI*2,
   }));
 
+  let waveBaseColor = '#1a6cff';
+  let waveAccentColor = '#00cfff';
   const WAVES = [
-    {a:20, f:0.0010, s:0.28, y:0.22, p:0.0,         c:'#1a6cff', o:0.028},
-    {a:14, f:0.0016, s:0.38, y:0.35, p:Math.PI*.6,  c:'#00cfff', o:0.020},
-    {a:26, f:0.0008, s:0.20, y:0.50, p:Math.PI*1.2, c:'#1a6cff', o:0.018},
-    {a:10, f:0.0022, s:0.50, y:0.65, p:Math.PI*1.8, c:'#0080ff', o:0.014},
-    {a:18, f:0.0013, s:0.33, y:0.80, p:Math.PI*0.3, c:'#00cfff', o:0.012},
+    {a:20, f:0.0010, s:0.28, y:0.22, p:0.0,         get c(){return waveBaseColor},   o:0.028},
+    {a:14, f:0.0016, s:0.38, y:0.35, p:Math.PI*.6,  get c(){return waveAccentColor}, o:0.020},
+    {a:26, f:0.0008, s:0.20, y:0.50, p:Math.PI*1.2, get c(){return waveBaseColor},   o:0.018},
+    {a:10, f:0.0022, s:0.50, y:0.65, p:Math.PI*1.8, get c(){return waveBaseColor},   o:0.014},
+    {a:18, f:0.0013, s:0.33, y:0.80, p:Math.PI*0.3, get c(){return waveAccentColor}, o:0.012},
   ];
+  /* expose color-change hook for perspective toggle */
+  window._oceanWaveColor = function(base){
+    waveBaseColor   = base;
+    waveAccentColor = base === '#e62020' ? '#ff6060' : '#00cfff';
+  };
 
   let t = 0;
   function frame(){
@@ -459,7 +756,7 @@
       const bx = b.x*W, by = b.y*H;
       cx.beginPath();
       cx.arc(bx, by, b.r, 0, Math.PI*2);
-      cx.strokeStyle = `rgba(122,180,255,${b.alpha})`;
+      cx.strokeStyle = waveBaseColor==='#e62020' ? `rgba(255,120,120,${b.alpha})` : `rgba(122,180,255,${b.alpha})`;
       cx.lineWidth = 1;
       cx.stroke();
       cx.beginPath();
@@ -497,81 +794,156 @@
   document.querySelectorAll('.reveal').forEach(el => io.observe(el));
 })();
 
-/* ═══ PERSPECTIVE TOGGLE ═══ */
+/* PERSPECTIVE TOGGLE */
 (function(){
-  const btns = document.querySelectorAll('.perspective-btn');
-  const flash = document.getElementById('pfx');
-  let current = 'usa';
+  const floatBtns = document.querySelectorAll('.perspective-btn');
+  const heroBtns  = document.querySelectorAll('.hpt-btn');
+  const floatWrap = document.querySelector('.perspective-float');
+  const flash     = document.getElementById('pfx');
+  const heroPT    = document.getElementById('heroPerspective');
+  let current     = 'usa';
 
-  const COPY = {
-    usa: {
-      l1:'USA', l2:'CHINA', l1cls:'word-usa', l2cls:'word-chn',
-      heroIntro:'This story follows the shift from long US control to a rivalry that becomes measurable across overall medal scale, historical medal count, swimming pressure, and diving strength.',
-      heroHook:'One country sets the Olympic standard. The other rises fast enough to turn the story into a direct US‑China contest.',
-      chip0:'Historical Dominator', chip1:'Rising Challenger',
-      rivalryTitle:'Where the rivalry becomes visible',
-      rivalryCopy:'The United States carries the broader medal machine and deep swimming history. China is especially forceful in diving and increasingly credible in the pool — turning the medal race into direct sport-by-sport pressure.',
-      dominanceTitle:'Medals — USA dominance, and who\'s closest each year',
-      swimmingTitle:'Swimming lanes — China catching up in the pool',
-      divingTitle:'Diving — medal flow as a wave (CHN above water, USA below)',
-      goldTitle:'🥇 Gold · 🥈 Silver · 🥉 Bronze — race scale (USA vs CHN)',
+  const THEMES = {
+    usa:{
+      '--accent':'#1a6cff','--accent-light':'#7ab4ff',
+      '--accent-06':'rgba(26,108,255,.06)','--accent-08':'rgba(26,108,255,.08)',
+      '--accent-10':'rgba(26,108,255,.10)','--accent-12':'rgba(26,108,255,.12)',
+      '--accent-15':'rgba(26,108,255,.15)','--accent-18':'rgba(26,108,255,.18)',
+      '--accent-20':'rgba(26,108,255,.20)','--accent-25':'rgba(26,108,255,.25)',
+      '--accent-30':'rgba(26,108,255,.30)','--accent-35':'rgba(26,108,255,.35)',
+      '--accent-45':'rgba(26,108,255,.45)',
     },
-    china: {
-      l1:'CHINA', l2:'USA', l1cls:'word-chn', l2cls:'word-usa',
-      heroIntro:"This story follows China's remarkable rise from emerging competitor to Olympic powerhouse, challenging America's long-standing dominance across medal counts, swimming excellence, and diving supremacy.",
-      heroHook:"One country challenges the status quo. The other must defend its position as the rivalry intensifies across every Olympic stage.",
-      chip0:'Rising Powerhouse', chip1:'Defending Champion',
-      rivalryTitle:"Where China's rise becomes unmistakable",
-      rivalryCopy:"China's surge in diving is unmatched, and its growing presence in the pool signals a broader shift. The medal race now runs through every sport where the two nations directly clash.",
-      dominanceTitle:'Medals — China\'s rise, closing on the leader',
-      swimmingTitle:'Swimming lanes — China\'s progress in the pool',
-      divingTitle:'Diving — China\'s dominance above the waterline',
-      goldTitle:'🥇 Gold · 🥈 Silver · 🥉 Bronze — race scale (CHN vs USA)',
+    china:{
+      '--accent':'#e62020','--accent-light':'#ff8080',
+      '--accent-06':'rgba(230,32,32,.06)','--accent-08':'rgba(230,32,32,.08)',
+      '--accent-10':'rgba(230,32,32,.10)','--accent-12':'rgba(230,32,32,.12)',
+      '--accent-15':'rgba(230,32,32,.15)','--accent-18':'rgba(230,32,32,.18)',
+      '--accent-20':'rgba(230,32,32,.20)','--accent-25':'rgba(230,32,32,.25)',
+      '--accent-30':'rgba(230,32,32,.30)','--accent-35':'rgba(230,32,32,.35)',
+      '--accent-45':'rgba(230,32,32,.45)',
     },
   };
 
-  function apply(p){
-    const c = COPY[p];
-    const set = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-    const setClass = (id,cls) => { const el=document.getElementById(id); if(el) el.className=cls; };
-    setClass('heroLine1', c.l1cls); set('heroLine1', c.l1);
-    setClass('heroLine2', c.l2cls); set('heroLine2', c.l2);
-    set('heroIntro',       c.heroIntro);
-    set('heroHook',        c.heroHook);
-    set('themeChip0',      c.chip0);
-    set('themeChip1',      c.chip1);
-    set('rivalryTitle',    c.rivalryTitle);
-    set('rivalryCopy',     c.rivalryCopy);
-    set('dominanceTitle',  c.dominanceTitle);
-    set('swimmingTitle',   c.swimmingTitle);
-    set('divingTitle',     c.divingTitle);
-    set('goldTitle',       c.goldTitle);
+  function applyTheme(p){
+    const root = document.documentElement;
+    Object.entries(THEMES[p]).forEach(([k,v]) => root.style.setProperty(k,v));
+    document.body.dataset.perspective = p;
+
+    const isChina = p === 'china';
+
+    /* ── Page background — bright, vivid Olympic palette ── */
+    // USA: royal blue gradient  |  China: crimson gradient
+    root.style.setProperty('--bg',         isChina ? '#190404' : '#040d1f');
+    root.style.setProperty('--ocean-deep', isChina ? '#0d0202' : '#020912');
+    root.style.setProperty('--ocean-mid',  isChina ? '#220808' : '#061428');
+
+    /* apply bg color to body directly (only if medal section is not active) */
+    if (!window._medalSectionActive || !window._medalSectionActive())
+    document.body.style.background = isChina
+      ? 'linear-gradient(180deg,#190404 0%,#0d0202 100%)'
+      : 'linear-gradient(180deg,#040d1f 0%,#020912 100%)';
+
+    /* ── Card backgrounds — vivid tinted panels ── */
+    root.style.setProperty('--card-bg-a',  isChina ? 'rgba(58,10,10,.90)'  : 'rgba(10,24,58,.90)');
+    root.style.setProperty('--card-bg-b',  isChina ? 'rgba(36,5,5,.97)'     : 'rgba(4,14,40,.97)');
+    root.style.setProperty('--card-border',isChina ? 'rgba(255,80,80,.16)'   : 'rgba(100,160,255,.15)');
+
+    /* ── Nav background ── */
+    const nav = document.getElementById('sticky-nav');
+    if(nav) nav.style.background = isChina
+      ? 'rgba(28,4,4,.92)'
+      : 'rgba(4,13,31,.88)';
+
+    /* ── Depth gradient radial overlay — big vivid blooms ── */
+    const dg = document.querySelector('.depth-gradient');
+    if(dg){
+      dg.style.background = isChina
+        ? 'radial-gradient(ellipse 140% 70% at 20% 5%,rgba(230,32,32,.22) 0%,transparent 55%),'
+        + 'radial-gradient(ellipse 100% 50% at 80% 8%,rgba(180,10,10,.14) 0%,transparent 50%),'
+        + 'linear-gradient(180deg,var(--ocean-deep) 0%,var(--ocean-mid) 30%,var(--ocean-mid) 70%,var(--ocean-deep) 100%)'
+        : 'radial-gradient(ellipse 120% 60% at 15% 10%,rgba(26,108,255,.10) 0%,transparent 60%),'
+        + 'radial-gradient(ellipse 80% 40% at 85% 5%,rgba(26,108,255,.06) 0%,transparent 50%),'
+        + 'linear-gradient(180deg,var(--ocean-deep) 0%,var(--ocean-mid) 30%,var(--ocean-mid) 70%,var(--ocean-deep) 100%)';
+    }
+
+    /* ── Ocean canvas wave color ── */
+    if(window._oceanWaveColor) window._oceanWaveColor(isChina ? '#e62020' : '#1a6cff');
   }
 
-  btns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const p = btn.dataset.perspective;
-      if(p === current) return;
-      current = p;
+  const COPY = {
+    usa:{
+      l1:'USA',l2:'CHINA',l1cls:'word-usa',l2cls:'word-chn',
+      heroIntro:'This story follows the shift from long US control to a rivalry that becomes measurable across overall medal scale, historical medal count, swimming pressure, and diving strength.',
+      heroHook:'One country sets the Olympic standard. The other rises fast enough to turn the story into a direct US-China contest.',
+      chip0:'Historical Dominator',chip1:'Rising Challenger',
+      rivalryTitle:'Where the rivalry becomes visible',
+      rivalryCopy:'The United States carries the broader medal machine and deep swimming history. China is especially forceful in diving and increasingly credible in the pool, turning the medal race into direct sport-by-sport pressure.',
+      dominanceTitle:"Medals — USA dominance, and who's closest each year",
+      swimmingTitle:'Swimming lanes — China catching up in the pool',
+      divingTitle:'Diving — medal flow as a wave (CHN above water, USA below)',
+      goldTitle:'Gold, Silver, Bronze — race scale (USA vs CHN)',
+    },
+    china:{
+      l1:'CHINA',l2:'USA',l1cls:'word-chn',l2cls:'word-usa',
+      heroIntro:"This story follows China's remarkable rise from emerging competitor to Olympic powerhouse, challenging America's long-standing dominance across medal counts, swimming excellence, and diving supremacy.",
+      heroHook:"One country challenges the status quo. The other must defend its position as the rivalry intensifies across every Olympic stage.",
+      chip0:'Rising Powerhouse',chip1:'Defending Champion',
+      rivalryTitle:"Where China's rise becomes unmistakable",
+      rivalryCopy:"China's surge in diving is unmatched, and its growing presence in the pool signals a broader shift. The medal race now runs through every sport where the two nations directly clash.",
+      dominanceTitle:"Medals — China's rise, closing on the leader",
+      swimmingTitle:"Swimming lanes — China's progress in the pool",
+      divingTitle:"Diving — China's dominance above the waterline",
+      goldTitle:'Gold, Silver, Bronze — race scale (CHN vs USA)',
+    },
+  };
 
-      /* flash */
-      const col = p==='usa' ? 'rgba(26,108,255,.1)' : 'rgba(230,32,32,.1)';
-      flash.style.background = col;
-      flash.style.opacity = '1';
-      flash.style.transition = 'opacity 0s';
-      requestAnimationFrame(() => {
-        flash.style.transition = 'opacity .5s';
-        flash.style.opacity = '0';
-      });
+  function applyCopy(p){
+    const c = COPY[p];
+    const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v;};
+    const setClass=(id,cls)=>{const el=document.getElementById(id);if(el)el.className=cls;};
+    setClass('heroLine1',c.l1cls); set('heroLine1',c.l1);
+    setClass('heroLine2',c.l2cls); set('heroLine2',c.l2);
+    set('heroIntro',c.heroIntro); set('heroHook',c.heroHook);
+    set('themeChip0',c.chip0);    set('themeChip1',c.chip1);
+    set('heroChip0',c.chip0);     set('heroChip1',c.chip1);
+    set('rivalryTitle',c.rivalryTitle); set('rivalryCopy',c.rivalryCopy);
+    set('dominanceTitle',c.dominanceTitle); set('swimmingTitle',c.swimmingTitle);
+    set('divingTitle',c.divingTitle); set('goldTitle',c.goldTitle);
+  }
 
-      btns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      apply(p);
-    });
-  });
+  function switchTo(p, skipAnim){
+    current = p;
+    applyTheme(p);
+    applyCopy(p);
+    window.dispatchEvent(new CustomEvent('perspectiveChange', {detail:{perspective:p}}));
+    if(!skipAnim){
+      const col = p==='usa'?'rgba(26,108,255,.13)':'rgba(230,32,32,.13)';
+      flash.style.background=col; flash.style.opacity='1'; flash.style.transition='opacity 0s';
+      requestAnimationFrame(()=>{flash.style.transition='opacity .65s'; flash.style.opacity='0';});
+    }
+    heroBtns.forEach(b => b.classList.toggle('is-active', b.dataset.perspective===p));
+    floatBtns.forEach(b => b.classList.toggle('active',    b.dataset.perspective===p));
+  }
+
+  [...heroBtns, ...floatBtns].forEach(btn =>
+    btn.addEventListener('click', () => switchTo(btn.dataset.perspective))
+  );
+
+  function onScroll(){
+    const heroH = document.getElementById('hero')?.offsetHeight || 700;
+    floatWrap?.classList.toggle('visible', window.scrollY > heroH * 0.72);
+    if(heroPT){
+      const fade = Math.max(0, 1 - window.scrollY/(heroH * 0.52));
+      heroPT.style.opacity = String(fade);
+      heroPT.style.pointerEvents = fade < 0.05 ? 'none' : 'all';
+    }
+  }
+  window.addEventListener('scroll', onScroll, {passive:true});
+  onScroll();
+  switchTo('usa', true);
 })();
 
-/* ═══ ACCORDION ═══ */
+
 (function(){
   const tabs = document.querySelectorAll('.acc-tab[data-panel]');
   if(!tabs.length) return;
@@ -588,6 +960,51 @@
   document.querySelectorAll('a[data-open-panel]').forEach(a=>{
     a.addEventListener('click',()=>open(a.dataset.openPanel));
   });
+})();
+
+/* ═══ MEDAL SECTION SCROLL — bg switches to gold/silver/bronze when viz4 visible ═══ */
+(function(){
+  const goldSection = document.getElementById('goldCard');
+  if (!goldSection) return;
+
+  let _medalActive = false;
+
+  const MEDAL_CLASSES = ['mode-total','mode-gold','mode-silver','mode-bronze'];
+
+  function enterMedalMode() {
+    if (_medalActive) return;
+    _medalActive = true;
+    // remove inline background so CSS medal class can take over
+    document.body.style.background = '';
+    // apply whichever medal class the viz currently has (default mode-total)
+    const hasAny = MEDAL_CLASSES.some(c => document.body.classList.contains(c));
+    if (!hasAny) document.body.classList.add('mode-total');
+  }
+
+  function leaveMedalMode() {
+    if (!_medalActive) return;
+    _medalActive = false;
+    // remove all medal classes
+    MEDAL_CLASSES.forEach(c => document.body.classList.remove(c));
+    // restore perspective background
+    const isChina = document.body.dataset.perspective === 'china';
+    document.body.style.background = isChina
+      ? 'linear-gradient(180deg,#190404 0%,#0d0202 100%)'
+      : 'linear-gradient(180deg,#040d1f 0%,#020912 100%)';
+  }
+
+  // Expose so applyTheme can coordinate
+  window._medalSectionActive = () => _medalActive;
+  window._leaveMedalMode     = leaveMedalMode;
+
+  const io = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) enterMedalMode();
+      else leaveMedalMode();
+    });
+  }, { threshold: 0.08 });
+
+  io.observe(goldSection);
 })();
 </script>
 </body>

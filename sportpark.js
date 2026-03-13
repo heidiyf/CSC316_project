@@ -188,41 +188,41 @@
       sports:['Swimming','Diving','Water Polo','Artistic Swimming',
               'Synchronized Swimming','Marathon Swimming','Marathon Swimming, Swimming'] },
     { id:'combat',     label:'Combat Arena Pavilion',   venue:'Boxing Ring & Combat Hall',
-      color:'#5b21b6', accent:'#c084fc', x:645,  y:455,
+      color:'#5b21b6', accent:'#c084fc', x:700,  y:490,
       desc:'Raw one-on-one competition under the pavilion roof',
       sports:['Boxing','Wrestling','Judo','Taekwondo','Karate','Tug-Of-War','Basque Pelota'] },
     { id:'extreme',    label:'Skate & Climb Park',      venue:'Extreme & Other Sports',
-      color:'#374151', accent:'#9ca3af', x:570,  y:580,
+      color:'#374151', accent:'#9ca3af', x:570,  y:650,
       desc:'Urban action sports — ramps, rails and rock walls',
       sports:['Skateboarding','Sport Climbing','Surfing','Breaking',
               'Art Competitions','Aeronautics','Alpinism','Croquet',
               'Jeu De Paume','Motorboating','Racquets','Roque',
               'Figure Skating','Ice Hockey','Polo'] },
     { id:'ballsports', label:'Multi-Court Zone',        venue:'Ball Sports Complex',
-      color:'#065f46', accent:'#34d399', x:1020, y:490,
+      color:'#065f46', accent:'#34d399', x:1060, y:430,
       desc:'Every ball sport from football to golf',
       sports:['Football','Basketball','3x3 Basketball','3x3 Basketball, Basketball',
               'Volleyball','Beach Volleyball','Handball','Hockey',
               'Rugby Sevens','Rugby','Baseball','Softball','Baseball/Softball',
               'Tennis','Cricket','Lacrosse','Golf'] },
     { id:'gymnastics', label:'Gymnastics Hall',         venue:'Gymnastics Floor',
-      color:'#9d174d', accent:'#f472b6', x:295,  y:655,
+      color:'#9d174d', accent:'#f472b6', x:430,  y:720,
       desc:'Grace and power on every piece of apparatus',
       sports:['Artistic Gymnastics','Rhythmic Gymnastics',
               'Trampoline Gymnastics','Trampolining'] },
     { id:'equestrian', label:'Equestrian Arena',        venue:'Sand Arena',
-      color:'#78350f', accent:'#fcd34d', x:910,  y:600,
+      color:'#78350f', accent:'#fcd34d', x:990,  y:625,
       desc:'Horse and rider in perfect harmony on the sand',
       sports:['Equestrian','Equestrianism'] },
     { id:'cycling',    label:'Cycling Circuit',         venue:'Road & Track Cycling',
-      color:'#14532d', accent:'#4ade80', x:790,  y:840,
+      color:'#14532d', accent:'#4ade80', x:760,  y:920,
       desc:'Speed on every surface — road, track, mountain and dirt',
       sports:['Cycling','Cycling Road','Cycling Track','Cycling BMX Racing',
               'Cycling BMX Freestyle','Cycling Mountain Bike',
               'Cycling Road, Cycling Mountain Bike',
               'Cycling Road, Cycling Track','Cycling Road, Triathlon'] },
     { id:'watersports',label:'Water Sports Lake',       venue:'Open Water & Lake',
-      color:'#164e63', accent:'#22d3ee', x:112,  y:760,
+      color:'#164e63', accent:'#22d3ee', x:155,  y:875,
       desc:'Open water racing — paddles, oars and sails',
       sports:['Rowing','Canoeing','Canoe Slalom','Canoe Sprint','Sailing'] },
   ];
@@ -482,12 +482,23 @@ body {
   function computeMedals(rows) {
     const sportMedals   = {};
     const sportRowCount = {};
+
+    // De-duplicate to event-level: one row per (Year, NOC, Sport, Event, Medal)
+    const seen = new Set();
     rows.forEach(d => {
       if (d.Season !== 'Summer') return;
       const sport = String(d.Sport  || '').trim();
       const medal = String(d.Medal  || '').trim();
       const noc   = String(d.NOC    || '').trim();
+      const event = String(d.Event  || '').trim();
+      const year  = String(d.Year   || '').trim();
       if (!sport || !['Gold','Silver','Bronze'].includes(medal)) return;
+
+      // event-level dedup key
+      const key = `${year}|${noc}|${sport}|${event}|${medal}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+
       if (!sportMedals[sport]) sportMedals[sport] = {};
       if (!sportMedals[sport][noc]) sportMedals[sport][noc] = {Gold:0,Silver:0,Bronze:0};
       sportMedals[sport][noc][medal]++;
@@ -536,7 +547,7 @@ body {
           ${row('🥈','Silver',s,'silver')}
           ${row('🥉','Bronze',b,'bronze')}
         </div>
-        <div class="sp-card-note">${spFmt(total)} medal records in dataset</div>
+        <div class="sp-card-note">${spFmt(total)} event medals in dataset</div>
       </div>`;
     }
 
@@ -718,6 +729,7 @@ body {
       const unique = new Set(
         data.filter(d => d.Season === 'Summer' && d.Sport)
             .map(d => String(d.Sport).trim())
+            .filter(s => !s.includes(','))   // exclude combined entries like "Cycling Road, Cycling Track"
       );
       countEl.textContent = `${unique.size} sports`;
     }
@@ -773,6 +785,7 @@ body {
           const unique = new Set(
             rows.filter(d => d.Season === 'Summer' && d.Sport)
                 .map(d => String(d.Sport).trim())
+                .filter(s => !s.includes(','))
           );
           badge.textContent = `${unique.size} summer sports`;
         }

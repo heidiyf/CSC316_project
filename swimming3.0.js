@@ -2,8 +2,7 @@
    Changes from swimming3_0.js:
      1. Removed all CSS entrance animations on swimmer icons (was causing opacity:0 bug)
      2. Fixed swimmer overflow: icons now wrap within pool bounds
-     3. USA / CHN toggle — shows one pool at a time
-     4. Kept full medal-color swimmer silhouettes (gold/silver/bronze body color)
+     3. Kept full medal-color swimmer silhouettes (gold/silver/bronze body color)
 
    Requires D3 v7 loaded globally.
 
@@ -12,7 +11,6 @@
      #swimUSALabel  #swimCHNLabel
      #swimUSA  #swimCHN
      #swimCompareBar  (optional — auto-created if missing)
-     #swimToggle      (optional — auto-created if missing)
 
    Expected data fields: Year, Sport, Medal, NOC, Name, Event
 */
@@ -44,37 +42,6 @@
       .wave-a { animation: waveA 5.4s ease-in-out infinite; }
       .wave-b { animation: waveB 7.1s ease-in-out infinite; }
       .wave-c { animation: waveC 9.2s ease-in-out infinite; }
-
-      /* Toggle buttons */
-      #swimToggle {
-        display: flex;
-        gap: 10px;
-        margin: 10px 0 14px;
-      }
-      .swim-toggle-btn {
-        padding: 7px 24px;
-        border-radius: 20px;
-        border: 2px solid transparent;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.2s;
-        background: #0d1e33;
-        color: #94a3b8;
-        letter-spacing: 0.05em;
-      }
-      .swim-toggle-btn.active-usa {
-        background: #1a3fa8;
-        color: #fff;
-        border-color: #3b82f6;
-        box-shadow: 0 0 14px rgba(59,130,246,0.5);
-      }
-      .swim-toggle-btn.active-chn {
-        background: #7f1d1d;
-        color: #fff;
-        border-color: #ef4444;
-        box-shadow: 0 0 14px rgba(239,68,68,0.45);
-      }
 
       /* Comparison bar */
       #swimCompareBar { margin: 10px 0; padding: 0 4px; }
@@ -143,6 +110,137 @@
         width:0; height:0;
         border-left:7px solid transparent; border-right:7px solid transparent;
         border-top:7px solid #0d1e33;
+      }
+
+      .swim-finals-grid {
+        display:grid;
+        grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));
+        gap:16px;
+      }
+      .swim-final-card {
+        border-radius:20px;
+        padding:16px 16px 14px;
+        background:linear-gradient(180deg, rgba(13,30,51,0.96) 0%, rgba(7,16,31,0.98) 100%);
+        border:1px solid rgba(59,130,246,0.22);
+        box-shadow:0 14px 34px rgba(2,8,23,0.45);
+      }
+      .swim-finals-toolbar {
+        display:flex;
+        flex-wrap:wrap;
+        align-items:center;
+        gap:10px;
+        margin:0 0 16px;
+      }
+      .swim-finals-toolbar-label {
+        font-size:12px;
+        font-weight:800;
+        letter-spacing:0.08em;
+        text-transform:uppercase;
+        color:#cbd5e1;
+        margin-right:2px;
+      }
+      .swim-finals-action {
+        appearance:none;
+        border-radius:999px;
+        border:1px solid rgba(148,163,184,0.16);
+        background:rgba(15,23,42,0.88);
+        color:#cbd5e1;
+        cursor:pointer;
+        padding:8px 12px;
+        font-size:12px;
+        font-weight:700;
+        transition:transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+        box-shadow:0 8px 18px rgba(2,8,23,0.22);
+      }
+      .swim-finals-action:hover {
+        transform:translateY(-1px);
+      }
+      .swim-finals-action {
+        background:rgba(29,78,216,0.14);
+        border-color:rgba(59,130,246,0.22);
+        color:#bfdbfe;
+        box-shadow:0 12px 24px rgba(2,8,23,0.26);
+      }
+      .swim-final-top {
+        display:flex;
+        align-items:center;
+        justify-content:space-between;
+        gap:10px;
+        margin-bottom:10px;
+      }
+      .swim-final-kicker,
+      .swim-final-gap-tag {
+        display:inline-flex;
+        align-items:center;
+        padding:5px 10px;
+        border-radius:999px;
+        font-size:11px;
+        font-weight:800;
+        letter-spacing:0.08em;
+        text-transform:uppercase;
+      }
+      .swim-final-kicker {
+        background:rgba(148,163,184,0.14);
+        color:#cbd5e1;
+      }
+      .swim-final-gap-tag {
+        background:rgba(34,197,94,0.14);
+        color:#86efac;
+      }
+      .swim-final-event {
+        margin:0 0 6px;
+        font-size:18px;
+        line-height:1.2;
+        color:#f8fafc;
+      }
+      .swim-final-copy {
+        margin:0 0 12px;
+        font-size:13px;
+        line-height:1.5;
+        color:#cbd5e1;
+      }
+      .swim-final-stage {
+        width:100%;
+        margin-bottom:10px;
+      }
+      .swim-final-stage svg {
+        display:block;
+        width:100%;
+        height:auto;
+      }
+      .swim-final-times {
+        display:grid;
+        gap:6px;
+      }
+      .swim-final-time-row {
+        display:grid;
+        grid-template-columns:auto minmax(0, 1fr) auto;
+        align-items:center;
+        gap:8px;
+        font-size:13px;
+        color:#cbd5e1;
+      }
+      .swim-final-time-row.is-winner {
+        font-weight:800;
+        color:#f8fafc;
+      }
+      .swim-final-noc {
+        padding:4px 8px;
+        border-radius:999px;
+        font-size:11px;
+        font-weight:800;
+        letter-spacing:0.08em;
+        text-transform:uppercase;
+      }
+      .swim-final-name {
+        min-width:0;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        white-space:nowrap;
+      }
+      .swim-final-time {
+        font-variant-numeric:tabular-nums;
+        font-weight:800;
       }
     `;
     document.head.appendChild(style);
@@ -219,6 +317,69 @@
   const MEDAL_ORDER = ['Gold', 'Silver', 'Bronze'];
   const MEDAL_COLOR = { Gold: COLORS.gold, Silver: COLORS.silver, Bronze: COLORS.bronze };
 
+  function parseSwimTime(value) {
+    const text = String(value ?? '').trim();
+    if (!text) return NaN;
+    if (!text.includes(':')) return Number(text);
+
+    const parts = text.split(':');
+    if (parts.length !== 2) return Number(text.replace(':', '.'));
+
+    const left = Number(parts[0]);
+    const right = parts[1];
+
+    if (right.includes('.')) {
+      return left * 60 + Number(right);
+    }
+
+    return Number(`${left}.${right}`);
+  }
+
+  function formatSwimTime(value) {
+    return Number.isFinite(value) ? value.toFixed(2) : '—';
+  }
+
+  const PARIS_2024_SWIM_FINALS = [
+    {
+      event: "Men's 100m Backstroke",
+      swimmers: [
+        { noc: 'CHN', name: 'Jiayu Xu', rawTime: '52:32' },
+        { noc: 'USA', name: 'Ryan Murphy', rawTime: '52:39' },
+      ],
+    },
+    {
+      event: "Men's 100m Breaststroke",
+      swimmers: [
+        { noc: 'USA', name: 'Nic Fink', rawTime: '59:05' },
+        { noc: 'CHN', name: 'Haiyang Qin', rawTime: '59.50' },
+      ],
+    },
+    {
+      event: "Men's 100m Freestyle",
+      swimmers: [
+        { noc: 'CHN', name: 'Zhanle Pan', rawTime: '46.40' },
+        { noc: 'USA', name: 'Jack Alexy', rawTime: '47.96' },
+      ],
+    },
+    {
+      event: "Women's 100m Butterfly",
+      swimmers: [
+        { noc: 'USA', name: 'Torri Huske', rawTime: '55.59' },
+        { noc: 'CHN', name: 'Yufei Zhang', rawTime: '56.21' },
+      ],
+    },
+  ].map(match => ({
+    ...match,
+    swimmers: match.swimmers.map(swimmer => {
+      const time = parseSwimTime(swimmer.rawTime);
+      return {
+        ...swimmer,
+        time,
+        timeLabel: formatSwimTime(time),
+      };
+    }),
+  }));
+
   function safeNode(id) {
     const el = document.querySelector(id);
     return el ? d3.select(el) : null;
@@ -268,15 +429,18 @@
   /* ─── Comparison bar ─────────────────────────────────────────── */
   function ensureCompareBar() {
     let bar = document.getElementById('swimCompareBar');
+    const anchor = document.getElementById('swimUSALabel') || document.getElementById('swimUSA');
     if (!bar) {
-      const usaEl = document.getElementById('swimUSA');
-      if (usaEl && usaEl.parentNode) {
+      if (anchor && anchor.parentNode) {
         bar = document.createElement('div');
         bar.id = 'swimCompareBar';
-        usaEl.parentNode.insertBefore(bar, usaEl.nextSibling);
+        anchor.parentNode.insertBefore(bar, anchor);
       }
     }
     if (!bar) return null;
+    if (anchor && bar !== anchor.previousElementSibling) {
+      anchor.parentNode.insertBefore(bar, anchor);
+    }
     if (!bar.querySelector('.swim-bar-wrap')) {
       bar.innerHTML = `
         <div class="swim-bar-wrap">
@@ -305,33 +469,6 @@
     if (lC) lC.textContent = `🇨🇳 ${chnCount}`;
   }
 
-  /* ─── Toggle UI ──────────────────────────────────────────────── */
-  function ensureToggle(onSwitch) {
-    let wrap = document.getElementById('swimToggle');
-    if (!wrap) {
-      // Insert before #swimUSA
-      const anchor = document.getElementById('swimUSA');
-      if (!anchor || !anchor.parentNode) return null;
-      wrap = document.createElement('div');
-      wrap.id = 'swimToggle';
-      anchor.parentNode.insertBefore(wrap, anchor);
-    }
-    wrap.innerHTML = `
-      <button class="swim-toggle-btn active-usa" id="_btnUSA" data-noc="USA">🇺🇸 USA</button>
-      <button class="swim-toggle-btn"            id="_btnCHN" data-noc="CHN">🇨🇳 CHN</button>`;
-
-    wrap.addEventListener('click', (e) => {
-      const btn = e.target.closest('.swim-toggle-btn');
-      if (!btn) return;
-      const noc = btn.dataset.noc;
-      document.getElementById('_btnUSA').className = 'swim-toggle-btn' + (noc === 'USA' ? ' active-usa' : '');
-      document.getElementById('_btnCHN').className = 'swim-toggle-btn' + (noc === 'CHN' ? ' active-chn' : '');
-      onSwitch(noc);
-    });
-
-    return wrap;
-  }
-
   /* ─── Main entry ─────────────────────────────────────────────── */
   function renderSwimmingPools(data) {
     const hostUSA   = safeNode('#swimUSA');
@@ -350,6 +487,8 @@
     [hostUSA, hostCHN].forEach(h => h.classed('swim-pool-host', true));
     hostUSA.selectAll('*').remove();
     hostCHN.selectAll('*').remove();
+    document.getElementById('swimToggle')?.remove();
+    renderParisFinalsHeadToHead();
 
     const swimRows = data.filter(d =>
       d.Sport === 'Swimming' && d.Medal !== 'No medal' &&
@@ -367,7 +506,7 @@
     slider.step  = 1;
     slider.value = years.length - 1;
 
-    ensureCompareBar();
+    const compareBar = ensureCompareBar();
 
     const W = Math.max(900, Math.floor(hostUSA.node().getBoundingClientRect().width || 1200));
     const H = 260;
@@ -379,19 +518,13 @@
     drawPoolFrame(svgUSA, { noc: 'USA', W, H });
     drawPoolFrame(svgCHN, { noc: 'CHN', W, H });
 
-    // Default: show USA, hide CHN
-    let activeNOC = 'USA';
     hostUSA.style('display', null);
-    hostCHN.style('display', 'none');
+    hostCHN.style('display', null);
+    if (usaLabel) usaLabel.style.display = '';
+    if (chnLabel) chnLabel.style.display = '';
+    if (compareBar) compareBar.style.display = '';
 
-    ensureToggle((noc) => {
-      activeNOC = noc;
-      hostUSA.style('display', noc === 'USA' ? null : 'none');
-      hostCHN.style('display', noc === 'CHN' ? null : 'none');
-      updateLabels(noc);
-    });
-
-    function updateLabels(noc) {
+    function updateLabels() {
       const y = years[+slider.value] ?? years[years.length - 1];
       const usa = swimRows.filter(d => +d.Year === y && d.NOC === 'USA');
       const chn = swimRows.filter(d => +d.Year === y && d.NOC === 'CHN');
@@ -403,10 +536,6 @@
       usaLabel.textContent = `USA • Swimming medals: ${usaCount}`;
       chnLabel.textContent = `CHN • Swimming medals: ${chnCount}`;
       updateCompareBar(usaCount, chnCount);
-
-      // Show the label for the currently active NOC more prominently
-      if (usaLabel) usaLabel.style.display = (noc === 'USA') ? '' : 'none';
-      if (chnLabel) chnLabel.style.display = (noc === 'CHN') ? '' : 'none';
     }
 
     function update() {
@@ -418,7 +547,7 @@
 
       drawPoolMedals(svgUSA, usa);
       drawPoolMedals(svgCHN, chn);
-      updateLabels(activeNOC);
+      updateLabels();
     }
 
     slider.oninput = () => { Tooltip.hide(); update(); };
@@ -528,8 +657,8 @@
       .attr('fill','rgba(255,255,255,0.6)').attr('font-weight',800)
       .attr('letter-spacing','3px').attr('font-size',13).text('START');
 
-    // Flag
-    drawFlag(g, { noc, x:14, y:poolY+8, w:36, h:23, opacity:0.95 });
+    // Keep the flag above the lane-number stack so lane 1 stays visible.
+    drawFlag(g, { noc, x: 14, y: Math.max(2, poolY - 18), w: 34, h: 21, opacity: 0.95 });
 
     // Legend
     const legend = g.append('g').attr('transform',`translate(${poolX+poolW-125},${poolY-2})`);
@@ -662,6 +791,387 @@
       pts.push([cx + r*Math.cos(a), cy + r*Math.sin(a)]);
     }
     return pts.map(p => p.join(',')).join(' ');
+  }
+
+  function getSwimFinalResult(match) {
+    const ordered = match.swimmers.slice().sort((a, b) => a.time - b.time);
+    return {
+      winner: ordered[0],
+      loser: ordered[1],
+      gap: Math.max(0, (ordered[1]?.time ?? 0) - (ordered[0]?.time ?? 0)),
+    };
+  }
+
+  function getSwimFinalGapTag(gap) {
+    if (gap <= 0.1) return 'Photo finish';
+    if (gap <= 0.5) return 'Tight finish';
+    return 'Clear lead';
+  }
+
+  function ensureSwimFinalControls(host) {
+    if (!host) return null;
+
+    let controls = document.getElementById('parisFinalsControls');
+    if (!controls) {
+      controls = document.createElement('div');
+      controls.id = 'parisFinalsControls';
+      host.parentNode?.insertBefore(controls, host);
+    }
+    return controls;
+  }
+
+  function buildSwimFinalControls(host) {
+    const controls = ensureSwimFinalControls(host);
+    if (!controls) return;
+
+    controls.className = 'swim-finals-toolbar';
+    controls.innerHTML = '';
+
+    const label = document.createElement('span');
+    label.className = 'swim-finals-toolbar-label';
+    label.textContent = 'Animation';
+    controls.appendChild(label);
+
+    const replayBtn = document.createElement('button');
+    replayBtn.type = 'button';
+    replayBtn.className = 'swim-finals-action';
+    replayBtn.textContent = 'Play races';
+    replayBtn.addEventListener('click', () => {
+      renderParisFinalsHeadToHead({ animate: true });
+    });
+    controls.appendChild(replayBtn);
+  }
+
+  function appendAnimatedRaceSwimmer(parent, color, isWinner) {
+    if (isWinner) {
+      parent.append('circle')
+        .attr('r', 18)
+        .attr('fill', color)
+        .attr('opacity', 0.12);
+    }
+
+    parent.append('path')
+      .attr('d', 'M -56 0 Q -48 -6 -40 0 T -24 0 T -8 0')
+      .attr('fill', 'none')
+      .attr('stroke', color)
+      .attr('stroke-width', 2.2)
+      .attr('opacity', 0.28)
+      .attr('stroke-linecap', 'round')
+      .attr('stroke-dasharray', '8 7');
+
+    const body = parent.append('g');
+
+    body.append('line')
+      .attr('x1', -38)
+      .attr('y1', 0)
+      .attr('x2', 2)
+      .attr('y2', 0)
+      .attr('stroke', color)
+      .attr('stroke-width', 5)
+      .attr('stroke-linecap', 'round')
+      .attr('opacity', 0.24);
+
+    body.append('line')
+      .attr('x1', 4)
+      .attr('y1', 0)
+      .attr('x2', 22)
+      .attr('y2', -8)
+      .attr('stroke', color)
+      .attr('stroke-width', 2.4)
+      .attr('stroke-linecap', 'round');
+
+    const legTop = body.append('line')
+      .attr('x1', -10)
+      .attr('y1', 0)
+      .attr('x2', -24)
+      .attr('y2', -4)
+      .attr('stroke', color)
+      .attr('stroke-width', 2.1)
+      .attr('stroke-linecap', 'round');
+
+    const legBottom = body.append('line')
+      .attr('x1', -10)
+      .attr('y1', 0)
+      .attr('x2', -24)
+      .attr('y2', 5)
+      .attr('stroke', color)
+      .attr('stroke-width', 2.1)
+      .attr('stroke-linecap', 'round');
+
+    body.append('ellipse')
+      .attr('cx', -1)
+      .attr('cy', 0)
+      .attr('rx', 14)
+      .attr('ry', 5.8)
+      .attr('fill', color);
+
+    body.append('circle')
+      .attr('cx', 12)
+      .attr('cy', -4)
+      .attr('r', 4.1)
+      .attr('fill', color);
+  }
+
+  function animateSwimRaceOnce(marker, { startX, endX, y, delayMs = 0, durationMs = 2200 }) {
+    marker
+      .attr('transform', `translate(${startX},${y})`)
+      .transition()
+      .delay(delayMs)
+      .duration(durationMs)
+      .ease(d3.easeCubicInOut)
+      .attrTween('transform', () => {
+        const ix = d3.interpolateNumber(startX, endX);
+        return t => {
+          const bob = Math.sin(t * Math.PI * 5) * 1.7;
+          return `translate(${ix(t)},${y + bob})`;
+        };
+      });
+  }
+
+  function renderParisFinalsHeadToHead({ animate = false } = {}) {
+    const host = document.getElementById('parisFinalsHeadToHead');
+    if (!host) return;
+
+    buildSwimFinalControls(host);
+    host.innerHTML = '';
+
+    const grid = document.createElement('div');
+    grid.className = 'swim-finals-grid';
+    host.appendChild(grid);
+
+    const maxGap = d3.max(PARIS_2024_SWIM_FINALS, match => getSwimFinalResult(match).gap) || 1;
+
+    PARIS_2024_SWIM_FINALS.forEach(match => {
+      const result = getSwimFinalResult(match);
+      const swimmersByNoc = new Map(match.swimmers.map(swimmer => [swimmer.noc, swimmer]));
+      const order = ['CHN', 'USA'].filter(noc => swimmersByNoc.has(noc));
+
+      const rowsHtml = order.map(noc => {
+        const swimmer = swimmersByNoc.get(noc);
+        const isWinner = swimmer.noc === result.winner.noc;
+        const pillStyle = swimmer.noc === 'USA'
+          ? 'background:rgba(59,130,246,0.18);color:#bfdbfe;'
+          : 'background:rgba(239,68,68,0.18);color:#fecaca;';
+
+        return `
+          <div class="swim-final-time-row${isWinner ? ' is-winner' : ''}">
+            <span class="swim-final-noc" style="${pillStyle}">${swimmer.noc}</span>
+            <span class="swim-final-name">${swimmer.name}</span>
+            <span class="swim-final-time">${swimmer.timeLabel}</span>
+          </div>
+        `;
+      }).join('');
+
+      const card = document.createElement('article');
+      card.className = 'swim-final-card';
+      card.innerHTML = `
+        <div class="swim-final-top">
+          <span class="swim-final-kicker">Paris 2024 final</span>
+          <span class="swim-final-gap-tag">${getSwimFinalGapTag(result.gap)}</span>
+        </div>
+        <h4 class="swim-final-event">${match.event}</h4>
+        <p class="swim-final-copy"><b>${result.winner.name}</b> (${result.winner.noc}) touched first by ${result.gap.toFixed(2)}s over ${result.loser.name}.</p>
+        <div class="swim-final-stage"></div>
+        <div class="swim-final-times">${rowsHtml}</div>
+      `;
+
+      grid.appendChild(card);
+      drawHeadToHeadFinal(card.querySelector('.swim-final-stage'), match, maxGap, { animate });
+    });
+  }
+
+  function drawHeadToHeadFinal(container, match, maxGap, { animate = false } = {}) {
+    if (!container) return;
+
+    const result = getSwimFinalResult(match);
+    if (!result.winner || !result.loser) return;
+
+    const swimmersByNoc = new Map(match.swimmers.map(swimmer => [swimmer.noc, swimmer]));
+    const laneNocs = ['CHN', 'USA'].filter(noc => swimmersByNoc.has(noc));
+    const W = 430;
+    const H = 152;
+    const poolX = 88;
+    const poolY = 18;
+    const poolW = W - poolX - 14;
+    const poolH = 84;
+    const laneH = poolH / Math.max(2, laneNocs.length || 2);
+    const finishX = poolX + poolW - 22;
+    const startX = poolX + 22;
+    const gapScale = d3.scaleLinear()
+      .domain([0, Math.max(maxGap, 0.05)])
+      .range([0, poolW * 0.42]);
+    const durationScale = d3.scaleLinear()
+      .domain([0, Math.max(maxGap, 0.05)])
+      .range([0, 700]);
+
+    const finishByNoc = new Map([
+      [result.winner.noc, finishX],
+      [result.loser.noc, finishX - gapScale(result.gap)],
+    ]);
+
+    const svg = d3.select(container)
+      .append('svg')
+      .attr('viewBox', `0 0 ${W} ${H}`)
+      .attr('role', 'img')
+      .attr('aria-label', `${match.event}: ${result.winner.name} beat ${result.loser.name} by ${result.gap.toFixed(2)} seconds.`);
+
+    const defs = svg.append('defs');
+    const gradientId = `parisFinalPool_${match.event.replace(/\W+/g, '_')}`;
+    const gradient = defs.append('linearGradient')
+      .attr('id', gradientId)
+      .attr('x1', '0%')
+      .attr('y1', '0%')
+      .attr('x2', '100%')
+      .attr('y2', '100%');
+
+    gradient.append('stop').attr('offset', '0%').attr('stop-color', '#0f4977');
+    gradient.append('stop').attr('offset', '100%').attr('stop-color', '#0b7fb1');
+
+    svg.append('rect')
+      .attr('x', poolX)
+      .attr('y', poolY)
+      .attr('width', poolW)
+      .attr('height', poolH)
+      .attr('rx', 18)
+      .attr('fill', `url(#${gradientId})`)
+      .attr('stroke', 'rgba(125,211,252,0.5)')
+      .attr('stroke-width', 2);
+
+    laneNocs.forEach((noc, index) => {
+      const swimmer = swimmersByNoc.get(noc);
+      const y = poolY + laneH * (index + 0.5);
+      const color = noc === 'USA' ? '#60a5fa' : '#f87171';
+      const markerX = finishByNoc.get(noc) ?? startX;
+      const labelAnchor = markerX > finishX - 36 ? 'end' : 'start';
+      const labelX = labelAnchor === 'end' ? -18 : 18;
+      const isWinner = noc === result.winner.noc;
+      const durationMs = 1650 + durationScale(Math.max(0, swimmer.time - result.winner.time));
+
+      svg.append('rect')
+        .attr('x', poolX + 4)
+        .attr('y', poolY + laneH * index + 2)
+        .attr('width', poolW - 8)
+        .attr('height', laneH - 4)
+        .attr('rx', 12)
+        .attr('fill', 'rgba(255,255,255,0.1)');
+
+      svg.append('line')
+        .attr('x1', poolX + 8)
+        .attr('x2', poolX + poolW - 8)
+        .attr('y1', y)
+        .attr('y2', y)
+        .attr('stroke', 'rgba(255,255,255,0.45)')
+        .attr('stroke-width', 1.2)
+        .attr('stroke-dasharray', '6,6');
+
+      const label = svg.append('g');
+      label.append('rect')
+        .attr('x', 10)
+        .attr('y', y - 11)
+        .attr('width', 58)
+        .attr('height', 22)
+        .attr('rx', 11)
+        .attr('fill', color)
+        .attr('opacity', 0.16);
+      label.append('text')
+        .attr('x', 39)
+        .attr('y', y + 4)
+        .attr('text-anchor', 'middle')
+        .attr('font-size', 11)
+        .attr('font-weight', 800)
+        .attr('letter-spacing', '1px')
+        .attr('fill', color)
+        .text(noc);
+
+      const marker = svg.append('g')
+        .attr('transform', `translate(${animate ? startX : markerX},${y})`);
+
+      appendAnimatedRaceSwimmer(marker, color, isWinner);
+
+      marker.append('text')
+        .attr('x', labelX)
+        .attr('y', -12)
+        .attr('text-anchor', labelAnchor)
+        .attr('font-size', 12)
+        .attr('font-weight', 800)
+        .attr('fill', COLORS.ink)
+        .text(swimmer.timeLabel);
+
+      if (animate) {
+        animateSwimRaceOnce(marker, {
+          startX,
+          endX: markerX,
+          y,
+          delayMs: index * 160,
+          durationMs,
+        });
+      }
+    });
+
+    svg.append('text')
+      .attr('x', poolX + 4)
+      .attr('y', poolY - 6)
+      .attr('font-size', 10)
+      .attr('font-weight', 800)
+      .attr('letter-spacing', '1.5px')
+      .attr('fill', COLORS.muted)
+      .text('START');
+
+    svg.append('text')
+      .attr('x', finishX)
+      .attr('y', poolY - 6)
+      .attr('text-anchor', 'end')
+      .attr('font-size', 10)
+      .attr('font-weight', 800)
+      .attr('letter-spacing', '1.5px')
+      .attr('fill', COLORS.muted)
+      .text('FINISH');
+
+    d3.range(0, 5).forEach(index => {
+      svg.append('rect')
+        .attr('x', finishX + 4 + index * 4)
+        .attr('y', poolY + 4)
+        .attr('width', 2)
+        .attr('height', poolH - 8)
+        .attr('fill', index % 2 === 0 ? 'rgba(226,232,240,0.8)' : 'rgba(15,23,42,0.92)');
+    });
+
+    const loserX = finishByNoc.get(result.loser.noc) ?? finishX;
+    const winnerX = finishByNoc.get(result.winner.noc) ?? finishX;
+    const gapY = poolY + poolH + 18;
+
+    svg.append('line')
+      .attr('x1', loserX)
+      .attr('x2', winnerX)
+      .attr('y1', gapY)
+      .attr('y2', gapY)
+      .attr('stroke', 'rgba(226,232,240,0.65)')
+      .attr('stroke-width', 1.5);
+
+    svg.append('line')
+      .attr('x1', loserX)
+      .attr('x2', loserX)
+      .attr('y1', gapY - 5)
+      .attr('y2', gapY + 5)
+      .attr('stroke', 'rgba(226,232,240,0.65)')
+      .attr('stroke-width', 1.5);
+
+    svg.append('line')
+      .attr('x1', winnerX)
+      .attr('x2', winnerX)
+      .attr('y1', gapY - 5)
+      .attr('y2', gapY + 5)
+      .attr('stroke', 'rgba(226,232,240,0.65)')
+      .attr('stroke-width', 1.5);
+
+    svg.append('text')
+      .attr('x', (loserX + winnerX) / 2)
+      .attr('y', gapY - 8)
+      .attr('text-anchor', 'middle')
+      .attr('font-size', 11)
+      .attr('font-weight', 800)
+      .attr('fill', COLORS.ink)
+      .text(`${result.gap.toFixed(2)}s gap`);
   }
 
   window.renderSwimmingPools = renderSwimmingPools;

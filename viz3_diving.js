@@ -209,34 +209,11 @@ function renderDivingFlow(data) {
     .on('mousemove', (event, d) => {
       showTooltip(`<div><b>${d.Year}</b> — ${d.team}</div><div class="k">${d.medal} · ${escapeHtml(d.event)}</div>`, event);
       moveTooltip(event);
+      cursorEl.style.opacity = '0.6';
     })
-    .on('mouseleave', hideTooltip);
+    .on('mouseleave', () => { hideTooltip(); cursorEl.style.opacity = '0.82'; });
 
-  /* ── Splash at 1960 ───────────────────────────────────────────── */
-  const diveYear = 1960;
-  const diveX    = x(diveYear);
-
-  const splash = g.append('g').attr('opacity', 0.38);
-  [16, 28, 42].forEach(r => {
-    splash.append('circle')
-      .attr('cx', diveX).attr('cy', waterlineY).attr('r', r)
-      .attr('fill','none').attr('stroke','#5ac8ff').attr('stroke-width',1.8);
-  });
-  d3.range(0,8).forEach(i => {
-    const a = -1.1 + i*0.32;
-    splash.append('line')
-      .attr('x1', diveX + Math.cos(a)*7).attr('y1', waterlineY + Math.sin(a)*7)
-      .attr('x2', diveX + Math.cos(a)*20).attr('y2', waterlineY + Math.sin(a)*20)
-      .attr('stroke','#5ac8ff').attr('stroke-width',1.6).attr('opacity',.85);
-  });
-
-  /* ── Dive trajectory ──────────────────────────────────────────── */
-  g.append('path')
-    .attr('d', `M ${diveX - 110} ${y(15)} Q ${diveX - 42} ${y(8)} ${diveX} ${waterlineY}`)
-    .attr('fill','none')
-    .attr('stroke','rgba(140,190,255,0.5)')
-    .attr('stroke-width',2)
-    .attr('stroke-dasharray','6,5');
+  /* splash + dive trajectory removed */
 
   /* ═══════════════════════════════════════════════════════════════
      DIVING PLATFORM  (left side of chart)
@@ -389,9 +366,7 @@ function renderDivingFlow(data) {
     .attr('stroke','#e8c090').attr('stroke-width',3).attr('stroke-linecap','round');
   diverG.append('line').attr('x1', 5).attr('y1',-14).attr('x2', 12).attr('y2',-28)
     .attr('stroke','#e8c090').attr('stroke-width',3).attr('stroke-linecap','round');
-  // Hands together
-  diverG.append('circle').attr('cx',0).attr('cy',-31).attr('r',3.5)
-    .attr('fill','#e8c090').attr('stroke','rgba(255,255,255,.3)').attr('stroke-width',.6);
+  // (hands-together circle removed — looked like a second head)
   // Legs
   diverG.append('line').attr('x1',-3).attr('y1',-2).attr('x2',-4).attr('y2',10)
     .attr('stroke','#e8c090').attr('stroke-width',3.5).attr('stroke-linecap','round');

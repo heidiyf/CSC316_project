@@ -1384,9 +1384,7 @@
       return { craterLayer, bulletLayer };
     }
 
-    function animateFrame(frame) {
-      renderNonce += 1;
-      const nonce = renderNonce;
+    function animateFrame(frame, nonce = renderNonce) {
       const layers = drawStaticScene(frame);
 
       if (!frame.shots.length) return;
@@ -1463,6 +1461,16 @@
       });
     }
 
+    function renderReplayFrame(frame, shouldAnimate = false) {
+      renderNonce += 1;
+      const nonce = renderNonce;
+      if (shouldAnimate) {
+        animateFrame(frame, nonce);
+      } else {
+        drawStaticScene(frame);
+      }
+    }
+
     function updateText(frame) {
       yearValue.text(frame.year);
       yearSummary.html(
@@ -1490,12 +1498,12 @@
       `);
     }
 
-    function renderYear(yearIndex) {
+    function renderYear(yearIndex, shouldAnimate = false) {
       currentYearIndex = Math.max(0, Math.min(years.length - 1, yearIndex));
       yearSlider.value = currentYearIndex;
       const frame = frameForIndex(currentYearIndex);
       updateText(frame);
-      animateFrame(frame);
+      renderReplayFrame(frame, shouldAnimate);
       return frame;
     }
 
@@ -1507,7 +1515,7 @@
           stopAutoplay();
           return;
         }
-        const nextFrame = renderYear(currentYearIndex + 1);
+        const nextFrame = renderYear(currentYearIndex + 1, true);
         queueNext(nextFrame);
       }, stepDelay(frame));
     }
@@ -1515,7 +1523,7 @@
     function startAutoplay() {
       isAutoplay = true;
       playPauseBtn.textContent = 'Pause';
-      const frame = renderYear(currentYearIndex);
+      const frame = renderYear(currentYearIndex, true);
       queueNext(frame);
     }
 
@@ -1578,8 +1586,9 @@
     const perspectiveHandler = event => {
       const wasDuelMode = shootMode === 'duel';
       perspective = event?.detail?.perspective || document.body.dataset.perspective || 'usa';
-      const frame = renderYear(currentYearIndex);
-      if (isAutoplay) queueNext(frame);
+      const shouldAnimateReplay = isAutoplay && !wasDuelMode;
+      const frame = renderYear(currentYearIndex, shouldAnimateReplay);
+      if (shouldAnimateReplay) queueNext(frame);
       resetDuelState(wasDuelMode);
       if (wasDuelMode) {
         setShootMode('duel');
@@ -1588,7 +1597,7 @@
     host.node().__shootingPerspectiveHandler = perspectiveHandler;
     window.addEventListener('perspectiveChange', perspectiveHandler);
 
-    renderYear(currentYearIndex);
+    renderYear(currentYearIndex, false);
     setShootMode('replay');
     resetDuelState(false);
   }

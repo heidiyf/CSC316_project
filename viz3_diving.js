@@ -216,8 +216,384 @@ function renderDivingFlow(data) {
   /* splash + dive trajectory removed */
 
   /* ═══════════════════════════════════════════════════════════════
-     DIVING PLATFORM  (left side of chart)
+     BRUSH + TREND LINE CHART
+     Users drag to select a year range on the main chart.
+     A line chart below shows CHN vs USA medal counts for that range,
+     with the active perspective's line glowing.
   ═══════════════════════════════════════════════════════════════ */
+
+  // ── Inject CSS ──
+  if (!document.getElementById('_d3trendcss')) {
+    const sc = document.createElement('style'); sc.id = '_d3trendcss';
+    sc.textContent = `
+      #divingTrend {
+        margin-top: 14px;
+        border-radius: 16px;
+        overflow: hidden;
+        background: rgba(4,12,30,.85);
+        border: 1px solid rgba(100,160,255,.12);
+        transition: border-color .3s;
+      }
+      #divingTrend.persp-usa  { border-color: rgba(26,108,255,.4); }
+      #divingTrend.persp-china { border-color: rgba(230,32,32,.4); }
+      .dt-hint {
+        text-align: center;
+        padding: 22px 0 18px;
+        font-family: 'Lora', Georgia, serif;
+        font-size: 13px;
+        color: rgba(100,160,255,.45);
+        letter-spacing: .04em;
+      }
+    `;
+    document.head.appendChild(sc);
+  }
+
+  // ── Trend host div ──
+  const trendHost = document.getElementById('divingTrend') || (() => {
+    const d = document.createElement('div');
+    d.id = 'divingTrend';
+    host.node().parentNode.insertBefore(d, host.node().nextSibling);
+    return d;
+  })();
+
+  function getPerspective() {
+    return document.body.dataset.perspective || 'usa';
+  }
+
+  // ── Brush overlay on main chart ──
+  const brushG = g.append('g').attr('class','dive-brush');
+  let selectedRange = null; // [yearStart, yearEnd]
+
+  const brush = d3.brushX()
+    .extent([[0, 0], [width, height]])
+    .on('brush end', function(event) {
+      if (!event.selection) {
+        selectedRange = null;
+        renderHint();
+        return;
+      }
+      const [x0, x1] = event.selection.map(px => x.invert(px));
+      selectedRange = [Math.round(x0), Math.round(x1)];
+      renderTrend(selectedRange);
+    });
+
+  brushG.call(brush);
+
+  // Style the brush overlay
+  brushG.select('.overlay')
+    .attr('fill', 'transparent')
+    .style('cursor','crosshair');
+  brushG.select('.selection')
+    .attr('fill', 'rgba(100,180,255,.12)')
+    .attr('stroke', 'rgba(100,180,255,.55)')
+    .attr('stroke-width', 1.5)
+    .attr('stroke-dasharray', '5,3')
+    .attr('rx', 4);
+  brushG.selectAll('.handle')
+    .attr('fill', 'rgba(100,180,255,.7)')
+    .attr('rx', 3);
+
+  // ── Ghost demo CSS ──
+  if (!document.getElementById('_brushdemoCSS')) {
+    const sc = document.createElement('style'); sc.id = '_brushdemoCSS';
+    sc.textContent = `
+      /* Drag-to-select banner */
+      .dive-drag-banner {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+        margin-bottom: 10px;
+        padding: 11px 18px;
+        border-radius: 12px;
+        background: linear-gradient(90deg, rgba(26,108,255,.12), rgba(26,108,255,.06));
+        border: 1px solid rgba(26,108,255,.28);
+        cursor: default;
+        user-select: none;
+      }
+      .dive-drag-banner .ddb-icon {
+        font-size: 22px;
+        flex-shrink: 0;
+        animation: ddbBounce 1.6s ease-in-out infinite;
+      }
+      @keyframes ddbBounce {
+        0%,100% { transform: translateX(0); }
+        40%      { transform: translateX(9px); }
+        70%      { transform: translateX(-3px); }
+      }
+      .dive-drag-banner .ddb-text {
+        font-family: 'Lora', Georgia, serif;
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #93c5fd;
+        line-height: 1.4;
+      }
+      .dive-drag-banner .ddb-sub {
+        font-size: 11px;
+        font-weight: 400;
+        color: rgba(147,197,253,.6);
+        margin-top: 1px;
+      }
+      .dive-drag-banner .ddb-badge {
+        margin-left: auto;
+        flex-shrink: 0;
+        padding: 4px 11px;
+        border-radius: 999px;
+        background: rgba(26,108,255,.18);
+        border: 1px solid rgba(26,108,255,.4);
+        font-family: 'Lora', serif;
+        font-size: 10px;
+        font-weight: 800;
+        letter-spacing: .1em;
+        text-transform: uppercase;
+        color: #7ab4ff;
+        animation: ddbPulse 2.2s ease-in-out infinite;
+      }
+      @keyframes ddbPulse {
+        0%,100% { opacity: .7; }
+        50%      { opacity: 1; box-shadow: 0 0 10px rgba(26,108,255,.4); }
+      }
+      /* Ghost brush rect drawn on the SVG */
+      .ghost-brush-rect {
+        pointer-events: none;
+        rx: 4;
+      }
+    `;
+    document.head.appendChild(sc);
+  }
+
+  // ── Insert banner above the SVG ──
+  const bannerDiv = document.createElement('div');
+  bannerDiv.className = 'dive-drag-banner';
+  bannerDiv.innerHTML = `
+    <span class="ddb-icon">↔</span>
+    <div>
+      <div class="ddb-text">Drag across the chart to select a year range</div>
+      <div class="ddb-sub">A trend line will appear below comparing CHN vs USA medals for that window</div>
+    </div>
+    <span class="ddb-badge">Try it</span>`;
+  host.node().parentNode.insertBefore(bannerDiv, host.node());
+
+  // ── Brush instruction label (below x-axis) ──
+  g.append('text')
+    .attr('class','brush-hint')
+    .attr('x', width / 2).attr('y', height + 38)
+    .attr('text-anchor','middle')
+    .attr('fill','rgba(100,160,255,.45)')
+    .attr('font-size', 11).attr('font-weight', 700)
+    .attr('letter-spacing','.06em')
+    .style('font-family',"'DM Sans',sans-serif")
+    .text('← click and drag any section of the chart to explore →');
+
+  // ── Ghost brush overlay on chart (arrows + shaded hint region) ──
+  // Drawn BELOW the real brush so it disappears once user interacts
+  const ghostG = g.append('g').attr('class','ghost-hint-g').attr('pointer-events','none');
+
+  // Shaded hint band (1990–2010 — the interesting catchup zone)
+  const ghostX0 = x(1990), ghostX1 = x(2012);
+  ghostG.append('rect')
+    .attr('x', ghostX0).attr('y', 0)
+    .attr('width', ghostX1 - ghostX0).attr('height', height)
+    .attr('fill', 'rgba(100,180,255,.07)')
+    .attr('stroke', 'rgba(100,180,255,.3)')
+    .attr('stroke-width', 1.5)
+    .attr('stroke-dasharray', '6,4')
+    .attr('rx', 4);
+
+  // Left handle nub
+  ghostG.append('rect')
+    .attr('x', ghostX0 - 3).attr('y', height/2 - 18)
+    .attr('width', 6).attr('height', 36).attr('rx', 3)
+    .attr('fill', 'rgba(100,180,255,.6)');
+
+  // Right handle nub
+  ghostG.append('rect')
+    .attr('x', ghostX1 - 3).attr('y', height/2 - 18)
+    .attr('width', 6).attr('height', 36).attr('rx', 3)
+    .attr('fill', 'rgba(100,180,255,.6)');
+
+  // "Drag here" label — in the underwater region (below waterline) where it's clear
+  ghostG.append('text')
+    .attr('x', (ghostX0 + ghostX1) / 2).attr('y', waterlineY + 72)
+    .attr('text-anchor','middle')
+    .attr('fill','rgba(147,197,253,.75)')
+    .attr('font-size', 12).attr('font-weight', 800)
+    .attr('letter-spacing','.1em')
+    .style('font-family',"'DM Sans',sans-serif")
+    .text('DRAG HERE');
+
+  ghostG.append('text')
+    .attr('x', (ghostX0 + ghostX1) / 2).attr('y', waterlineY + 88)
+    .attr('text-anchor','middle')
+    .attr('fill','rgba(147,197,253,.45)')
+    .attr('font-size', 10).attr('font-weight', 600)
+    .style('font-family',"'DM Sans',sans-serif")
+    .text('to compare medal trends below');
+
+  // Animate the ghost band: gentle left-right pulse
+  (function pulseBand() {
+    ghostG.select('rect:first-child')
+      .transition().duration(1000).ease(d3.easeSinInOut)
+      .attr('fill','rgba(100,180,255,.13)')
+      .transition().duration(1000).ease(d3.easeSinInOut)
+      .attr('fill','rgba(100,180,255,.05)')
+      .on('end', pulseBand);
+  })();
+
+  // Hide ghost once user makes a real brush selection
+  brush.on('brush.ghost end.ghost', function(event) {
+    if (event.selection) {
+      ghostG.transition().duration(300).attr('opacity', 0).on('end', () => ghostG.remove());
+      bannerDiv.style.animation = 'none';
+      bannerDiv.querySelector('.ddb-badge').textContent = 'Selected ✓';
+      bannerDiv.querySelector('.ddb-badge').style.background = 'rgba(34,197,94,.18)';
+      bannerDiv.querySelector('.ddb-badge').style.borderColor = 'rgba(34,197,94,.4)';
+      bannerDiv.querySelector('.ddb-badge').style.color = '#86efac';
+    }
+  });
+
+  function renderHint() {
+    trendHost.innerHTML = `
+      <div class="dt-hint" style="padding:26px 0 22px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+        <span style="font-size:28px;">↔</span>
+        <span style="font-size:13px;color:rgba(147,197,253,.6);font-weight:700;">Drag a year range above to see the medal trend</span>
+        <span style="font-size:11px;color:rgba(147,197,253,.35);">Try selecting 1984–2004 or 2000–2024 for the most revealing comparisons</span>
+      </div>`;
+  }
+
+  function renderTrend(range) {
+    if (!range) return;
+    const [y0, y1] = range;
+    const filtered = series.filter(d => d.Year >= y0 && d.Year <= y1);
+    if (filtered.length < 1) { renderHint(); return; }
+
+    trendHost.innerHTML = '';
+    trendHost.classList.remove('persp-usa','persp-china');
+    const p = getPerspective();
+    trendHost.classList.add(p === 'china' ? 'persp-china' : 'persp-usa');
+
+    const TW = trendHost.getBoundingClientRect().width || 900;
+    const TH = 180;
+    const tm = { top: 28, right: 28, bottom: 38, left: 52 };
+    const tw = TW - tm.left - tm.right;
+    const th = TH - tm.top - tm.bottom;
+
+    const tSvg = d3.select(trendHost).append('svg')
+      .attr('width', TW).attr('height', TH);
+
+    const tg = tSvg.append('g').attr('transform', `translate(${tm.left},${tm.top})`);
+
+    const tDefs = tSvg.append('defs');
+
+    // Scales
+    const tx = d3.scaleLinear()
+      .domain(d3.extent(filtered, d => d.Year))
+      .range([0, tw]);
+
+    const maxY = d3.max(filtered, d => Math.max(d.CHN, d.USA)) || 1;
+    const ty = d3.scaleLinear().domain([0, maxY * 1.18]).range([th, 0]).nice();
+
+    // Grid
+    tg.append('g').attr('opacity',.1)
+      .call(d3.axisLeft(ty).ticks(4).tickSize(-tw).tickFormat(''))
+      .call(gg => gg.selectAll('.domain').remove());
+
+    // Glow filters
+    ['chn','usa'].forEach(k => {
+      const f = tDefs.append('filter').attr('id',`_dtGlow_${k}`).attr('x','-30%').attr('width','160%');
+      f.append('feGaussianBlur').attr('in','SourceGraphic').attr('stdDeviation','4').attr('result','b');
+      const m = f.append('feMerge');
+      m.append('feMergeNode').attr('in','b');
+      m.append('feMergeNode').attr('in','SourceGraphic');
+    });
+
+    // Shade between curves
+    const areaFill = d3.area()
+      .x(d => tx(d.Year)).y0(d => ty(d.USA)).y1(d => ty(d.CHN)).curve(d3.curveCatmullRom);
+    tg.append('path').datum(filtered)
+      .attr('d', areaFill)
+      .attr('fill', 'rgba(150,100,255,.06)');
+
+    // Lines
+    const lineCHN = d3.line().x(d => tx(d.Year)).y(d => ty(d.CHN)).curve(d3.curveCatmullRom);
+    const lineUSA = d3.line().x(d => tx(d.Year)).y(d => ty(d.USA)).curve(d3.curveCatmullRom);
+
+    const chnActive = p === 'china';
+    const usaActive = p === 'usa';
+
+    // Draw dimmed line first, then lit line on top
+    function drawLine(data, lineGen, color, active, label, side) {
+      const path = tg.append('path').datum(data)
+        .attr('d', lineGen)
+        .attr('fill','none')
+        .attr('stroke', color)
+        .attr('stroke-width', active ? 3.2 : 1.4)
+        .attr('opacity', active ? 1.0 : 0.28)
+        .attr('stroke-linejoin','round')
+        .attr('stroke-linecap','round');
+      if (active) path.attr('filter', `url(#_dtGlow_${label === 'CHN' ? 'chn' : 'usa'})`);
+
+      // Dots
+      tg.selectAll(`.dt-dot-${label}`).data(data).enter()
+        .append('circle')
+        .attr('class',`dt-dot-${label}`)
+        .attr('cx', d => tx(d.Year)).attr('cy', d => ty(side === 'chn' ? d.CHN : d.USA))
+        .attr('r', active ? 4.5 : 2.5)
+        .attr('fill', color)
+        .attr('opacity', active ? 1 : 0.25)
+        .attr('stroke', active ? 'rgba(255,255,255,.6)' : 'none')
+        .attr('stroke-width', 1.2);
+
+      // End label
+      const last = data[data.length - 1];
+      if (!last) return;
+      tg.append('text')
+        .attr('x', tx(last.Year) + 8)
+        .attr('y', ty(side === 'chn' ? last.CHN : last.USA) + 4)
+        .attr('fill', color).attr('font-size', active ? 13 : 10)
+        .attr('font-weight', 900).attr('opacity', active ? 1 : 0.35)
+        .style('font-family',"'DM Sans',sans-serif")
+        .text(label);
+    }
+
+    // Draw non-active behind, active on top
+    if (chnActive) {
+      drawLine(filtered, lineUSA, COLORS.usa, false, 'USA', 'usa');
+      drawLine(filtered, lineCHN, COLORS.chn, true,  'CHN', 'chn');
+    } else {
+      drawLine(filtered, lineCHN, COLORS.chn, false, 'CHN', 'chn');
+      drawLine(filtered, lineUSA, COLORS.usa, true,  'USA', 'usa');
+    }
+
+    // Axes
+    const xAxis = d3.axisBottom(tx).ticks(Math.min(filtered.length, 8)).tickFormat(d3.format('d'));
+    tg.append('g').attr('transform',`translate(0,${th})`).call(xAxis)
+      .call(gg => { gg.selectAll('text').style('fill','#7a93b8').style('font-family',"'DM Sans',sans-serif"); gg.selectAll('line,path.domain').style('stroke','rgba(100,160,255,.2)'); });
+
+    tg.append('g').call(d3.axisLeft(ty).ticks(4))
+      .call(gg => { gg.selectAll('text').style('fill','#7a93b8').style('font-family',"'DM Sans',sans-serif"); gg.selectAll('line,path.domain').style('stroke','rgba(100,160,255,.15)'); gg.selectAll('.domain').remove(); });
+
+    // Chart title
+    tg.append('text')
+      .attr('x', tw / 2).attr('y', -12)
+      .attr('text-anchor','middle')
+      .attr('fill','rgba(180,210,255,.55)')
+      .attr('font-size', 11).attr('font-weight', 700)
+      .attr('letter-spacing','.08em')
+      .style('font-family',"'DM Sans',sans-serif")
+      .text(`Diving medals per Olympics · ${y0}–${y1} · ${p === 'china' ? 'CHN perspective' : 'USA perspective'}`);
+  }
+
+  renderHint();
+
+  // Re-render on perspective change
+  window.addEventListener('perspectiveChange', () => {
+    if (selectedRange) renderTrend(selectedRange);
+    else renderHint();
+  });
+
+  /* ==============================================================
+     DIVING PLATFORM  (left side of chart)
+  ============================================================== */
   // All coords are in SVG space (absolute, not inside g)
   const platX  = margin.left - PLATFORM_MARGIN + 6;  // left anchor of tower
   const platW  = 30;                                   // tower width
@@ -406,6 +782,10 @@ function renderDivingFlow(data) {
   const oldCursor = document.getElementById('dive-cursor-el');
   if (oldCursor) oldCursor.remove();
 
+  // Remove any old splash container
+  const oldSplash = document.getElementById('dive-splash-container');
+  if (oldSplash) oldSplash.remove();
+
   const GIF_SIZE = 160; // bigger so the animation reads clearly
 
   const cursorEl = document.createElement('div');
@@ -420,6 +800,17 @@ function renderDivingFlow(data) {
     'display:none',
     'filter:drop-shadow(0 6px 20px rgba(26,108,255,.55))',
   ].join(';');
+
+  // Create splash container for water splash effects
+  const splashContainer = document.createElement('div');
+  splashContainer.id = 'dive-splash-container';
+  splashContainer.style.cssText = [
+    'position:fixed',
+    'pointer-events:none',
+    'z-index:9998',
+    'inset:0',
+  ].join(';');
+  document.body.appendChild(splashContainer);
 
   const SRC_ABOVE = 'diving.gif';
   const SRC_BELOW = 'diving_underwater.gif';
@@ -436,6 +827,95 @@ function renderDivingFlow(data) {
   cursorEl.appendChild(imgAbove);
   cursorEl.appendChild(imgBelow);
   document.body.appendChild(cursorEl);
+
+  /* ── Water Splash Effect ────────────────────────────────────────
+     Creates water droplets that splash when cursor crosses waterline
+     Water splash always originates from the waterline (y coordinate)
+  ──────────────────────────────────────────────────────────────── */
+  function createWaterSplash(x, waterlineY) {
+    const splashBubbles = document.createElement('div');
+    splashBubbles.style.cssText = 'position:fixed;pointer-events:none;width:0;height:0;';
+    splashContainer.appendChild(splashBubbles);
+
+    // Create multiple water droplets radiating from waterline impact point
+    const dropletCount = 12;
+    const splashRadius = 80;  // increased splash radius
+    const maxDropletSize = 16; // increased from 14 (8+6)
+
+    for (let i = 0; i < dropletCount; i++) {
+      const angle = (i / dropletCount) * Math.PI * 2;
+      const droplet = document.createElement('div');
+      const size = 10 + Math.random() * maxDropletSize; // larger droplets
+
+      droplet.style.cssText = `
+        position: fixed;
+        width: ${size}px;
+        height: ${size}px;
+        background: radial-gradient(circle at 30% 30%, rgba(58, 184, 255, 0.9), rgba(26, 108, 255, 0.5));
+        border-radius: 50%;
+        left: ${x}px;
+        top: ${waterlineY}px;
+        pointer-events: none;
+        z-index: 9998;
+        box-shadow: 0 2px 12px rgba(26, 108, 255, 0.6);
+      `;
+
+      splashBubbles.appendChild(droplet);
+
+      // Animate droplet - horizontal and upward motion from waterline
+      const vx = Math.cos(angle) * splashRadius * (0.5 + Math.random() * 0.8);
+      const vy = Math.sin(angle) * splashRadius * (0.3 + Math.random() * 0.5) - 30; // stronger upward bias
+      const gravity = 0.12;
+
+      const startTime = Date.now();
+      const duration = 800 + Math.random() * 500;
+
+      function animateDroplet() {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+
+        const currentX = x + vx * progress;
+        const currentY = waterlineY + vy * progress + 0.5 * gravity * progress * progress * 200;
+        const opacity = Math.max(0, 1 - progress * 1.1);
+
+        droplet.style.left = currentX + 'px';
+        droplet.style.top = currentY + 'px';
+        droplet.style.opacity = opacity.toString();
+
+        if (progress < 1) {
+          requestAnimationFrame(animateDroplet);
+        } else {
+          droplet.remove();
+        }
+      }
+
+      animateDroplet();
+    }
+
+    // Remove container after animation completes
+    setTimeout(() => {
+      splashBubbles.remove();
+    }, 1400);
+  }
+
+  // Add CSS for bubble animation
+  if (!document.getElementById('dive-splash-styles')) {
+    const style = document.createElement('style');
+    style.id = 'dive-splash-styles';
+    style.textContent = `
+      @keyframes bubbleRise {
+        0% {
+          transform: translateY(0) scale(1);
+          opacity: 0.8;
+        }
+        100% {
+          transform: translateY(-60px) scale(0.3);
+          opacity: 0;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+  }
 
   /* ── Force GIF loop ────────────────────────────────────────────
      Browsers stop GIFs after their built-in loop count (often 1).
@@ -475,6 +955,7 @@ function renderDivingFlow(data) {
 
   const svgNode = svg.node();
   let lastAbove = true; // track which GIF is currently shown
+  let lastWaterlineY_vp = waterlineY_abs; // store waterline Y coordinate for splash effect
 
   function showAbove() {
     if (lastAbove) return;
@@ -487,12 +968,15 @@ function renderDivingFlow(data) {
     lastAbove = false;
     imgAbove.style.opacity = '0';
     imgBelow.style.opacity = '1';
+    // Trigger water splash when diving down - use waterline Y in viewport coords
+    createWaterSplash(cursorEl.offsetLeft, lastWaterlineY_vp);
   }
 
   function onDiveMouseMove(e) {
     const rect = svgNode.getBoundingClientRect();
     // Waterline position in viewport coords
     const waterlineY_vp = rect.top + (waterlineY_abs / H) * rect.height;
+    lastWaterlineY_vp = waterlineY_vp; // Store for use in showBelow
 
     cursorEl.style.left    = e.clientX + 'px';
     cursorEl.style.top     = e.clientY + 'px';
@@ -523,6 +1007,7 @@ function renderDivingFlow(data) {
     svgNode.removeEventListener('mouseleave', onDiveMouseLeave);
     svgNode.removeEventListener('mouseenter', onDiveMouseEnter);
     cursorEl.remove();
+    splashContainer.remove();
   };
 }
 

@@ -305,13 +305,15 @@
       pts.push(`L ${PX+PW+40} ${PY+PH} L ${PX-40} ${PY+PH} Z`);
       wc.append('path').attr('class',cls).attr('d',pts.join(' ')).attr('fill',`rgba(100,210,255,${op})`);
     });
-    // Lane ropes
-    const rc=['#ff5a45','#f5c518','#3b82f6'];
+    // Lane ropes — white dashed lines (distinct from medal dots)
     for(let j=0;j<=NL;j++){
       const ry=PY+j*LH;
-      g.selectAll(null).data(d3.range(0,Math.floor(PW/11))).enter()
-        .append('circle').attr('cx',di=>PX+5+di*11).attr('cy',ry).attr('r',2.3)
-        .attr('fill',di=>rc[di%3]).attr('opacity',.48);
+      g.append('line')
+        .attr('x1',PX+2).attr('x2',PX+PW-2)
+        .attr('y1',ry).attr('y2',ry)
+        .attr('stroke','rgba(255,255,255,0.55)')
+        .attr('stroke-width',1.5)
+        .attr('stroke-dasharray','7,5');
     }
     // Centre divider
     g.append('line').attr('x1',MID).attr('x2',MID).attr('y1',PY).attr('y2',PY+PH)
@@ -719,7 +721,19 @@
     const ctrl=document.getElementById('parisFinalsControls');
     if(ctrl){
       ctrl.className='s6-ftb'; ctrl.innerHTML='';
-      // Update subtitle if present
+      const lbl = document.createElement('span');
+      lbl.style.cssText = 'font-size:12px;color:rgba(148,163,184,.6);font-weight:600;letter-spacing:.05em;';
+      lbl.textContent = 'Press ▶ Play on each card to animate individually';
+      ctrl.appendChild(lbl);
+    }
+    renderParis(false);
+  }
+
+  function _unused_setupParisFinals_backup() {
+    const host=document.getElementById('parisFinalsHeadToHead'); if(!host)return;
+    const ctrl=document.getElementById('parisFinalsControls');
+    if(ctrl){
+      ctrl.className='s6-ftb'; ctrl.innerHTML='';
       const subtitleEl = ctrl.closest('section,div')?.querySelector('p,small,.subtitle');
       if (subtitleEl && subtitleEl.textContent.includes('touched first')) {
         subtitleEl.textContent = 'Here are some highlights of the competitive matches between the USA and China.';
@@ -746,23 +760,48 @@
       const res=finalResult(match), byN=new Map(match.swimmers.map(s=>[s.noc,s]));
       const order=['CHN','USA'].filter(n=>byN.has(n));
       const card=document.createElement('article'); card.className='s6-fc';
-      // Build time rows with hoverable athlete names
-      const timesDiv = document.createElement('div'); timesDiv.className='s6-ftimes';
+
+      // ── Header row (kicker + gap + individual play btn) ──
+      const topDiv=document.createElement('div'); topDiv.className='s6-ftop';
+      topDiv.innerHTML=`<span class="s6-fkicker">Paris 2024 final</span><span class="s6-fgap">${gapTag(res.gap)}</span>`;
+      const playBtn=document.createElement('button'); playBtn.type='button';
+      playBtn.className='s6-fplay'; playBtn.textContent='▶ Play';
+      playBtn.style.cssText='margin-left:auto;font-size:11px;padding:5px 12px;';
+      topDiv.appendChild(playBtn);
+      card.appendChild(topDiv);
+
+      // ── Event title + copy ──
+      const evtH=document.createElement('h4'); evtH.className='s6-fevt'; evtH.textContent=match.event; card.appendChild(evtH);
+      const copyP=document.createElement('p'); copyP.className='s6-fcopy';
+      copyP.innerHTML=`<b>${res.winner.name}</b> (${res.winner.noc}) touched first by ${res.gap.toFixed(2)}s.`; card.appendChild(copyP);
+
+      // ── Race stage ──
+      const stageDiv=document.createElement('div'); stageDiv.className='s6-fstage'; card.appendChild(stageDiv);
+
+      // ── Athlete time rows ──
+      const timesDiv=document.createElement('div'); timesDiv.className='s6-ftimes';
       order.forEach(noc=>{
         const s=byN.get(noc),isW=s.noc===res.winner.noc;
         const ps=noc==='USA'?'background:rgba(59,130,246,.17);color:#bfdbfe':'background:rgba(239,68,68,.17);color:#fecaca';
         const row=document.createElement('div'); row.className='s6-frow'+(isW?' w':'');
         row.innerHTML=`<span class="s6-fnoc" style="${ps}">${noc}</span><span class="s6-fname s6-athlete" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px" data-name="${s.name}">${s.name}</span><span class="s6-ftime">${s.timeLabel}</span>`;
         timesDiv.appendChild(row);
-        const nameEl = row.querySelector('.s6-athlete');
-        nameEl.addEventListener('mouseenter', e => ATIP.show(e, s.name));
-        nameEl.addEventListener('mousemove',  e => ATIP.move(e));
-        nameEl.addEventListener('mouseleave', () => ATIP.hide());
+        const nameEl=row.querySelector('.s6-athlete');
+        nameEl.addEventListener('mouseenter',e=>ATIP.show(e,s.name));
+        nameEl.addEventListener('mousemove',e=>ATIP.move(e));
+        nameEl.addEventListener('mouseleave',()=>ATIP.hide());
       });
-      card.innerHTML=`<div class="s6-ftop"><span class="s6-fkicker">Paris 2024 final</span><span class="s6-fgap">${gapTag(res.gap)}</span></div><h4 class="s6-fevt">${match.event}</h4><p class="s6-fcopy"><b>${res.winner.name}</b> (${res.winner.noc}) touched first by ${res.gap.toFixed(2)}s.</p><div class="s6-fstage"></div>`;
       card.appendChild(timesDiv);
+
+      // ── Per-card play/replay button logic ──
+      playBtn.addEventListener('click',()=>{
+        stageDiv.innerHTML='';
+        drawH2H(stageDiv,match,maxG,true);
+        playBtn.textContent='↺ Replay';
+      });
+
       grid.appendChild(card);
-      drawH2H(card.querySelector('.s6-fstage'),match,maxG,animate);
+      drawH2H(stageDiv,match,maxG,animate);
     });
   }
 

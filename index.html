@@ -452,6 +452,8 @@
     <a class="nav-link" href="#dominanceCard">Medals</a>
     <a class="nav-link" href="#aquaticSection">Aquatics</a>
     <a class="nav-link" href="#goldCard">Race Scale</a>
+    <a class="nav-link" href="#forgottenSportsSection">Hidden Sports</a>
+    <a class="nav-link" href="#triviaSection">Trivia</a>
   </div>
 </nav>
 
@@ -563,8 +565,10 @@
         <div class="section-num">1</div>
         <div class="section-label">Medal Count</div>
       </div>
-      <h2 class="section-title" id="dominanceTitle">USA vs China — Olympic Medals by Sport, 1984–2024</h2>
-      <p class="section-subtitle" id="dominanceSubtitle">Each tower stacks Gold / Silver / Bronze for one country across 10 sports and 11 Games. <span style="opacity:.7">Drag to orbit · scroll to zoom · filter by year · switch perspective to spotlight a country.</span></p>
+      <h2 class="section-title" id="dominanceTitle">USA Dominance Across Major Olympic Sports from 1984-2024</h2>
+      <p class="section-subtitle" id="dominanceSubtitle">
+      A comparison of medals won by the United States and China across ten major Olympic sports since 1984. Each 3D tower stacks gold, silver, and bronze medals for each country across Olympic Games.
+      </p>
     </div>
     <div class="card card-usa">
       <div id="viz1Controls" class="viz1-controls"></div>
@@ -588,8 +592,8 @@
         <div class="acc-tab-strip-label"><span aria-hidden="true"></span><strong class="acc-tab-strip-copy">Choose a lens to explore</strong><span aria-hidden="true"></span></div>
     <div class="acc-tabs" role="tablist">
       <button class="acc-tab is-active" data-panel="swimmingCard" role="tab" aria-selected="true">
-        Swimming &mdash; an interactive USA vs CHN lane race
-        <div style="font-size:11px;font-weight:400;opacity:.62;margin-top:4px">Year slider, stroke filters, and lane-by-lane medal buildup</div>
+        Swimming &mdash; Olympic medals in the pool over time
+        <div style="font-size:11px;font-weight:400;opacity:.62;margin-top:4px">Each dot represents a swimming medal. Use the year slider to explore Olympic results over time.</div>
       </button>
       <button class="acc-tab" data-panel="divingCard" role="tab" aria-selected="false">
         Diving &mdash; medal flow as a wave
@@ -600,6 +604,18 @@
     <div class="acc-panel is-open" id="swimmingCard" role="tabpanel">
       <div class="card card-aqua">
         <!-- All DOM IDs expected by viz2_swimming.js (renderSwimmingPools) -->
+
+        <!-- ── Paris 2024 Finals (moved to top) ── -->
+        <section class="swim-story-break" style="margin-top:0;padding-top:0;border-top:none;margin-bottom:20px;">
+          <h2 style="margin:0 0 4px">Paris 2024 Classic Finals</h2>
+          <p style="color:var(--muted);margin:0 0 10px;font-size:13px;">Direct USA–China finals from Paris 2024. Press <b>▶ Play</b> on each card to animate the race.</p>
+          <div id="parisFinalsControls"></div>
+          <div id="parisFinalsHeadToHead"></div>
+        </section>
+
+        <hr style="border:none;border-top:1px solid rgba(100,160,255,.12);margin:0 0 16px;">
+
+        <!-- ── Year slider + pool ── -->
         <div class="controls" style="margin-bottom:8px;">
           <span class="control-label">Year:</span>
           <input id="yearSlider" type="range" style="width:260px;" />
@@ -615,21 +631,16 @@
         <div id="swimCHNLabel" style="display:none"></div>
         <div id="swimCHN" class="viz poolContainer"></div>
 
-        <section class="swim-story-break">
-          <h2>Paris 2024 classic finals</h2>
-          <p style="color:var(--muted);margin:0 0 14px;font-size:13px;">These direct USA–China finals show who touched first in Paris. Lower time wins.</p>
-          <div id="parisFinalsControls"></div>
-          <div id="parisFinalsHeadToHead"></div>
-        </section>
       </div>
     </div>
 
     <div class="acc-panel" id="divingCard" role="tabpanel">
       <div class="card card-aqua">
-        <h3 id="divingTitle" style="margin:0 0 6px;font-family:'Playfair Display',Georgia,serif;font-size:18px;font-weight:800;color:var(--ink)">Diving — medal flow as a wave (CHN above water, USA below)</h3>
-        <p>Diving medals per year mirrored around the "waterline". The filled shapes read like a wave. Dots are individual medals stacked per year. The diver marks when the story begins to shift. <span style="font-size:11px;color:var(--muted)">✦ Hover any dot to see the event.</span></p>
+        <h3 id="divingTitle" style="margin:0 0 6px;font-family:'Playfair Display',Georgia,serif;font-size:18px;font-weight:800;color:var(--ink)">Diving — Medal Flow Between China and the United States</h3>
+        <p>Each dot represents an Olympic diving medal. China’s medals appear above the waterline while U.S. medals appear below, creating a mirrored wave that shows how the balance of diving success shifts over time. <span style="font-size:11px;color:var(--muted)">✦ Hover any dot to see the event.</span></p>
         <div id="divingFlow" class="viz"></div>
-        <p class="small">Athlete-medals — each individual medal counts.</p>
+        <div id="divingTrend"></div>
+        <p class="small">Athlete-medals — each individual medal counts. Drag a year range on the chart to explore the trend.</p>
       </div>
     </div>
   </div>
@@ -662,7 +673,7 @@
         <div class="section-num" style="background:linear-gradient(135deg,rgba(240,192,64,.2),rgba(240,192,64,.06));border-color:rgba(240,192,64,.35);color:#f0c040;">5</div>
         <div class="section-label">Race Scale</div>
       </div>
-      <h2 class="section-title" id="goldTitle">Gold &middot; Silver &middot; Bronze &mdash; Race Scale (USA vs CHN)</h2>
+      <h2 class="section-title" id="goldTitle">Gold &middot; Silver &middot; Bronze &mdash; Olympic Medal Race Over Time (USA vs CHN)</h2>
     </div>
 
     <!-- Race Scale control panel -->
@@ -692,7 +703,7 @@
         <div class="race-year-readout" id="rivalYearLabel">—</div>
         <div class="race-play-state" id="playStateText">Autoplay on</div>
       </div>
-      <div id="raceModeHeadline" class="race-headline">USA and China medal race</div>
+      <div id="raceModeHeadline" class="race-headline">Tracking the Olympic medal race between the United States and China</div>
       <div id="raceModeSubline" class="race-statline">Event-medal basis for USA and China.</div>
       <div id="raceModeSummary" class="race-caption">Autoplay will pause briefly at key rivalry years.</div>
     </div>
@@ -704,6 +715,34 @@
     <p class="small" style="margin-top:10px;padding:0 4px">Event medals: team events counted once per event.</p>
   </div>
 
+  <!-- ═══════════════ FORGOTTEN SPORTS BOOK ═══════════════ -->
+  <div class="waterline"></div>
+  <div class="viz-section reveal" id="forgottenSportsSection">
+    <div class="section-head">
+      <div class="section-badge">
+        <div class="section-num" style="background:linear-gradient(135deg,rgba(160,100,255,.2),rgba(120,60,200,.08));border-color:rgba(140,80,240,.35);color:#c084fc;">📖</div>
+        <div class="section-label">Hidden History</div>
+      </div>
+      <h2 class="section-title">Summer Olympic Sports People Forget</h2>
+      <p class="section-subtitle">Flip through the pages to discover bizarre, forgotten, and fascinating sports that were once part of the Olympic program — and are no longer.</p>
+    </div>
+    <div id="forgottenSportsBook"></div>
+  </div>
+
+  <!-- ═══════════════ TRIVIA QUIZ ═══════════════ -->
+  <div class="waterline"></div>
+  <div class="viz-section reveal" id="triviaSection">
+    <div class="section-head">
+      <div class="section-badge">
+        <div class="section-num" style="background:linear-gradient(135deg,rgba(240,192,64,.2),rgba(200,140,30,.08));border-color:rgba(240,192,64,.35);color:#f0c040;">🏆</div>
+        <div class="section-label">Quiz Time</div>
+      </div>
+      <h2 class="section-title">Summer Olympics Trivia Challenge</h2>
+      <p class="section-subtitle">Test your Olympic knowledge with 10 multiple-choice questions. How many can you get right?</p>
+    </div>
+    <div id="olympicsTrivia"></div>
+  </div>
+
   <div class="footer">CSC316 Final Project · US–China Olympic Rivalry · Summer Games</div>
 
 </div><!-- /.wrap -->
@@ -711,13 +750,15 @@
 
 <!-- VIZ SCRIPTS -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="shared.js"></script>
 <script src="sportpark.js"></script>
 <script src="viz1_dominance.js"></script>
 <script src="viz2_swimming.js"></script>
 <script src="viz3_diving.js"></script>
 <script src="viz7_shooting.js"></script>
 <script src="viz4_goldrace.js"></script>
-<script src="shared.js"></script>
+<script src="viz5_forgottenSports.js"></script>
+<script src="viz6_trivia.js"></script>
 
 <script>
 /* ═══ OCEAN CANVAS ═══ */
@@ -907,6 +948,7 @@
       shootingTitle:'Shooting — replay and perspective duel',
       goldTitle:'Gold, Silver, Bronze — race scale (USA vs CHN)',
     },
+
     china:{
       l1:'CHINA',l2:'USA',l1cls:'word-chn',l2cls:'word-usa',
       heroIntro:"This story follows China's remarkable rise from emerging competitor to Olympic powerhouse, challenging America's long-standing dominance across medal counts, swimming excellence, diving supremacy, and shooting precision.",

@@ -72,7 +72,7 @@ function renderDominance(rawData) {
   };
 
   /* ── state ───────────────────────────────────────────────── */
-  let mode3d=true, perspective='usa', filterYear='all', autoRotate=true;
+  let mode3d=true, perspective='usa', filterYear='all', filterSport='all', autoRotate=true;
 
   /* ── toolbar ──────────────────────────────────────────────── */
   const PILL = 'appearance:none;cursor:pointer;font-family:Lora,serif;font-size:12px;border-radius:20px;padding:5px 13px;transition:all .18s;border:1.5px solid rgba(150,100,30,.3);background:rgba(200,150,50,.08);color:#5a3210;';
@@ -95,6 +95,30 @@ function renderDominance(rawData) {
       ctrlDiv.querySelectorAll('[data-year]').forEach(b=>{b.style.cssText=b.dataset.year===filterYear?PILL_A:PILL;});
       applyYearFilter();
     });
+
+    // ── Sport filter row (2D only) ──────────────────────────────
+    const sportRow=document.createElement('div');
+    sportRow.id='viz1SportRow';
+    sportRow.style.cssText='display:none;width:100%;align-items:center;flex-wrap:wrap;gap:7px;padding:4px 0 2px;';
+    const sportSep=document.createElement('span');
+    sportSep.textContent='SPORT:';
+    sportSep.style.cssText='color:#8a5a20;font-size:12px;font-family:Lora,serif;font-weight:600;';
+    sportRow.appendChild(sportSep);
+    ['all',...SPORTS].forEach((sp,i)=>{
+      const b=document.createElement('button');
+      b.textContent=sp==='all'?'All':SPORT_SHORT[i-1];
+      b.title=sp==='all'?'All sports':sp;
+      b.dataset.sport=sp;
+      b.style.cssText=sp==='all'?PILL_A:PILL;
+      sportRow.appendChild(b);
+    });
+    sportRow.addEventListener('click',e=>{
+      const p=e.target.closest('[data-sport]'); if(!p) return;
+      filterSport=p.dataset.sport;
+      sportRow.querySelectorAll('[data-sport]').forEach(b=>{b.style.cssText=b.dataset.sport===filterSport?PILL_A:PILL;});
+      d3.select('#viz1_2d').remove(); build2D();
+    });
+    ctrlDiv.appendChild(sportRow);
   }
 
   /* ── floating mode button ────────────────────────────────── */
@@ -361,10 +385,13 @@ function renderDominance(rawData) {
     svg.append('rect').attr('width',W).attr('height',H).attr('fill','#fff8ec').attr('rx',8);
     const g=svg.append('g').attr('transform',`translate(${mg.left},${mg.top})`);
 
+    // Determine which sports to include based on filterSport
+    const activeSports = filterSport==='all' ? SPORTS : [filterSport];
+
     const rows=[];
     visYears.forEach(yr=>['USA','CHN'].forEach(noc=>{
       let G=0,S=0,B=0;
-      SPORTS.forEach(sp=>{G+=grid[yr][sp][noc].G;S+=grid[yr][sp][noc].S;B+=grid[yr][sp][noc].B;});
+      activeSports.forEach(sp=>{G+=grid[yr][sp][noc].G;S+=grid[yr][sp][noc].S;B+=grid[yr][sp][noc].B;});
       rows.push({yr,noc,G,S,B,total:G+S+B});
     }));
 
@@ -388,7 +415,8 @@ function renderDominance(rawData) {
             .on('mouseover',ev=>{
               const tt=document.getElementById('tooltip'); if(!tt) return;
               const flag=noc==='USA'?'🇺🇸':'🇨🇳';
-              tt.innerHTML=`<div><b>${flag} ${noc} · ${yr}</b></div><div class="k">🥇 <b>${row.G}</b> &nbsp;🥈 <b>${row.S}</b> &nbsp;🥉 <b>${row.B}</b></div><div>Total: <b>${row.total}</b></div>`;
+              const sportLabel=filterSport==='all'?'All sports':filterSport;
+              tt.innerHTML=`<div><b>${flag} ${noc} · ${yr}</b></div><div style="font-size:11px;opacity:.8">${sportLabel}</div><div class="k">🥇 <b>${row.G}</b> &nbsp;🥈 <b>${row.S}</b> &nbsp;🥉 <b>${row.B}</b></div><div>Total: <b>${row.total}</b></div>`;
               tt.style.opacity='1';tt.style.left=ev.clientX+'px';tt.style.top=ev.clientY+'px';
             })
             .on('mousemove',ev=>{const tt=document.getElementById('tooltip');if(tt){tt.style.left=ev.clientX+'px';tt.style.top=ev.clientY+'px';}})
@@ -407,7 +435,7 @@ function renderDominance(rawData) {
         .attr('font-size',9).attr('font-weight',700).attr('font-family','Lora,serif').text(noc);
     }));
     g.append('g').call(d3.axisLeft(y).ticks(6)).call(gg=>{gg.selectAll('text').attr('fill','#5a3010').attr('font-size',12);gg.selectAll('line,path').attr('stroke','rgba(150,100,30,.2)');gg.selectAll('.domain').remove();});
-    g.append('text').attr('transform','rotate(-90)').attr('y',-52).attr('x',-h/2).attr('text-anchor','middle').attr('fill','#8a5a20').attr('font-size',11).attr('font-family','Lora,serif').text('Event medals (top 10 sports combined)');
+    g.append('text').attr('transform','rotate(-90)').attr('y',-52).attr('x',-h/2).attr('text-anchor','middle').attr('fill','#8a5a20').attr('font-size',11).attr('font-family','Lora,serif').text(filterSport==='all'?'Event medals (top 10 sports combined)':`Event medals — ${filterSport}`);
 
     // dynamic legend per perspective
     const isCHN = perspective==='china';
@@ -433,15 +461,18 @@ function renderDominance(rawData) {
 
   modeBtn.addEventListener('click',()=>{
     mode3d=!mode3d;
+    const sportRow=document.getElementById('viz1SportRow');
     if(mode3d){
       Object.assign(modeBtn.style,{position:'absolute',top:'10px',right:'10px',margin:'0',display:'flex'});
       modeBtn.innerHTML='<span style="font-size:19px">📊</span><div style="font-size:10px;font-weight:700;letter-spacing:.05em;font-family:Lora,serif;margin-top:2px">2D View</div>';
       d3.select('#viz1_2d').remove();
       if(_cleanup3dFn){_cleanup3dFn();_cleanup3dFn=null;}
+      if(sportRow) sportRow.style.display='none';
       build3D();
     } else {
       modeBtn.innerHTML='<span style="font-size:19px">🧊</span><div style="font-size:10px;font-weight:700;letter-spacing:.05em;font-family:Lora,serif;margin-top:2px">3D View</div>';
       if(_cleanup3dFn){_cleanup3dFn();_cleanup3dFn=null;}
+      if(sportRow) sportRow.style.display='flex';
       build2D();
     }
     const rb=document.getElementById('v3dRotBtn'),rstb=document.getElementById('v3dResetBtn');

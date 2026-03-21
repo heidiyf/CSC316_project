@@ -15,7 +15,7 @@
  *     <script src="https://d3js.org/d3.v7.min.js"></script>
  *     <script src="sportpark.js"></script>
  *
- * In both modes, also needs: sports-park.png + olympics_dataset.csv
+ * In both modes, also needs: image/sports-park.png + data/olympics_dataset.csv
  * ─────────────────────────────────────────────────────────────────
  */
 
@@ -25,8 +25,8 @@
   /* ═══════════════════════════════════════════════════════════════
      CONSTANTS
   ═══════════════════════════════════════════════════════════════ */
-  const CSV_PATH = 'olympics_dataset.csv';
-  const IMG_PATH = 'sports-park.png';
+  const CSV_PATH = 'data/olympics_dataset.csv';
+  const IMG_PATH = 'image/sports-park.png';
   const IMG_W    = 1536;
   const IMG_H    = 1024;
 

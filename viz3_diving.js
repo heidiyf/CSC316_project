@@ -2,8 +2,8 @@
  * CSC316 Final Project
  * Features:
  *  - Decorative diving platform on the left edge
- *  - Custom animated GIF cursor: diving.gif above waterline,
- *    diving_underwater.gif below waterline
+ *  - Custom animated GIF cursor: image/diving.gif above waterline,
+ *    image/diving_underwater.gif below waterline
  * Requires: COLORS, MEDAL_COLOR, MEDAL_ORDER, fmt, safeNode,
  *           showTooltip, moveTooltip, hideTooltip, hashString
  * DOM IDs:  #divingFlow
@@ -773,8 +773,8 @@ function renderDivingFlow(data) {
 
   /* ═══════════════════════════════════════════════════════════════
      CUSTOM GIF CURSOR
-     - above waterline: diving.gif  (diver in air)
-     - below waterline: diving_underwater.gif (diver underwater)
+     - above waterline: image/diving.gif  (diver in air)
+     - below waterline: image/diving_underwater.gif (diver underwater)
   ═══════════════════════════════════════════════════════════════ */
   const hostNode = host.node();
 
@@ -812,8 +812,8 @@ function renderDivingFlow(data) {
   ].join(';');
   document.body.appendChild(splashContainer);
 
-  const SRC_ABOVE = 'diving.gif';
-  const SRC_BELOW = 'diving_underwater.gif';
+  const SRC_ABOVE = 'image/diving.gif';
+  const SRC_BELOW = 'image/diving_underwater.gif';
   const baseImgStyle = `width:${GIF_SIZE}px;height:${GIF_SIZE}px;object-fit:contain;position:absolute;top:0;left:0;`;
 
   const imgAbove = document.createElement('img');

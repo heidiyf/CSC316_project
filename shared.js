@@ -1,7 +1,7 @@
 /* shared.js — Utilities, theme, data loading, perspective toggle
  * CSC316 Final Project  —  single-page scroll layout
  *
- * Loads olympics_dataset.csv ONCE and calls each visualization's
+ * Loads data/olympics_dataset.csv ONCE and calls each visualization's
  * render function. Must be loaded LAST in index.html.
  *
  * Load order:
@@ -157,7 +157,7 @@ function hashString(str) {
 // ---------------------------
 
 Promise.all([
-  d3.csv('olympics_dataset.csv', d3.autoType)
+  d3.csv('data/olympics_dataset.csv', d3.autoType)
 ]).then(([data]) => {
   // normalize medal field
   data.forEach(d => {

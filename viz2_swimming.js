@@ -472,8 +472,8 @@
       });
     }
 
-    renderSide(cumUSA, usaSet, false, 'swimmer_USA_.gif', false);
-    renderSide(cumCHN, chnSet, true,  'swimmer_CHN_.gif', true);
+    renderSide(cumUSA, usaSet, false, 'image/swimmer_USA_.gif', false);
+    renderSide(cumCHN, chnSet, true,  'image/swimmer_CHN_.gif', true);
   }
 
   /* ═══════════════════════════════════════════════
@@ -834,7 +834,7 @@
       const gSw=svg.append('g').attr('transform',animate?`translate(${sX},${y})`:`translate(${mX},${y})`);
       const raceSH = lH - 6, raceSW = raceSH * 3.8;
       gSw.append('image')
-        .attr('href', 'swimmer_USA_.gif')   // both swim left→right in this diagram
+        .attr('href', 'image/swimmer_USA_.gif')   // both swim left→right in this diagram
         .attr('x', -raceSW/2).attr('y', -raceSH/2)
         .attr('width', raceSW).attr('height', raceSH)
         .attr('preserveAspectRatio','xMidYMid meet');

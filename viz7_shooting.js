@@ -79,10 +79,10 @@
   const DUEL_AI_DELAY_MS = 620;
   const DUEL_BULLET_TRAVEL_MS = 320;
   const SOUND_LIBRARY = {
-    shot: { src: 'gunshot.mov', volume: 0.44, poolSize: 6 },
-    win: { src: 'Victory Sound Effect.mp3', volume: 0.62, poolSize: 2 },
-    draw: { src: 'Tie Game Horns Sound Effect.mp3', volume: 0.58, poolSize: 2 },
-    lose: { src: 'Lose sound effects.mp3', volume: 0.62, poolSize: 2 },
+    shot: { src: 'sound/gunshot.mov', volume: 0.44, poolSize: 6 },
+    win: { src: 'sound/Victory Sound Effect.mp3', volume: 0.62, poolSize: 2 },
+    draw: { src: 'sound/Tie Game Horns Sound Effect.mp3', volume: 0.58, poolSize: 2 },
+    lose: { src: 'sound/Lose sound effects.mp3', volume: 0.62, poolSize: 2 },
   };
   const soundPools = new Map();
   let soundsPrimed = false;
@@ -727,7 +727,7 @@
         .attr('opacity', 1);
 
       bullet.append('image')
-        .attr('href', 'bullet.png')
+        .attr('href', 'image/bullet.png')
         .attr('x', -BULLET_W + 4)
         .attr('y', -BULLET_H / 2)
         .attr('width', BULLET_W)
@@ -1097,7 +1097,7 @@
       [human, ai].forEach(noc => {
         const fire = DUEL_FIRE_POS[noc];
         duelSvg.append('image')
-          .attr('href', 'gun.png')
+          .attr('href', 'image/gun.png')
           .attr('width', gunW)
           .attr('height', gunH)
           .attr('preserveAspectRatio', 'xMidYMid meet')
@@ -1371,7 +1371,7 @@
       ['USA', 'CHN'].forEach(noc => {
         const layout = TARGET_LAYOUT[noc];
         scene.append('image')
-          .attr('href', 'gun.png')
+          .attr('href', 'image/gun.png')
           .attr('width', gunW)
           .attr('height', gunH)
           .attr('preserveAspectRatio', 'xMidYMid meet')
@@ -1399,7 +1399,7 @@
           .attr('opacity', 0);
 
         bullet.append('image')
-          .attr('href', 'bullet.png')
+          .attr('href', 'image/bullet.png')
           .attr('x', -BULLET_W + 4)
           .attr('y', -BULLET_H / 2)
           .attr('width', BULLET_W)

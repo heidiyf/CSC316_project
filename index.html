@@ -487,7 +487,7 @@
       <span class="word-vs">on the olympic stage</span>
       <span class="word-chn" id="heroLine2">China</span>
     </h1>
-    <p class="hero-subtitle" id="heroIntro">This story follows the shift from long US control to a rivalry that becomes measurable across overall medal scale, historical medal count, swimming pressure, and diving strength.</p>
+    <p class="hero-subtitle" id="heroIntro">This story follows the shift from long US control to a rivalry that becomes measurable across overall medal scale, historical medal count, swimming pressure, diving strength, and shooting precision.</p>
     <div class="hero-hook-line" id="heroHook">One country sets the Olympic standard. The other rises fast enough to turn the story into a direct US‑China contest.</div>
     <div class="hero-chips">
       <span class="hero-chip usa-chip" id="themeChip0">Historical Dominator</span>
@@ -542,18 +542,19 @@
     <div class="rivalry-text">
       <div class="rivalry-kicker">The Data Story</div>
       <h2 class="rivalry-title" id="rivalryTitle">Where the rivalry becomes visible</h2>
-      <p class="rivalry-copy" id="rivalryCopy">The United States carries the broader medal machine and deep swimming history. China is especially forceful in diving and increasingly credible in the pool — turning the medal race into direct sport-by-sport pressure.</p>
+      <p class="rivalry-copy" id="rivalryCopy">The United States carries the broader medal machine and deep swimming history. China is especially forceful in diving, increasingly credible in the pool, and dangerous in shooting — turning the medal race into direct sport-by-sport pressure.</p>
       <div class="stat-chips">
         <div class="stat-chip"><span class="stat-chip-num">120+</span><span class="stat-chip-label">Years of Data</span></div>
-        <div class="stat-chip"><span class="stat-chip-num">4</span><span class="stat-chip-label">Key Lenses</span></div>
-        <div class="stat-chip"><span class="stat-chip-num">🏊🤿</span><span class="stat-chip-label">Aquatics Focus</span></div>
+        <div class="stat-chip"><span class="stat-chip-num">5</span><span class="stat-chip-label">Key Lenses</span></div>
+        <div class="stat-chip"><span class="stat-chip-num">🏊🤿🎯</span><span class="stat-chip-label">Aquatics + Shooting</span></div>
       </div>
     </div>
     <nav class="scroll-nav">
       <a href="#dominanceCard"><span class="nav-dot" style="background:var(--usa)"></span>① Medal Count</a>
       <a href="#aquaticSection" data-open-panel="swimmingCard"><span class="nav-dot" style="background:#0ea5e9"></span>② Swimming</a>
       <a href="#aquaticSection" data-open-panel="divingCard"><span class="nav-dot" style="background:#06b6d4"></span>③ Diving</a>
-      <a href="#goldCard"><span class="nav-dot" style="background:var(--gold)"></span>④ Race Scale</a>
+      <a href="#shootingCard"><span class="nav-dot" style="background:#f59e0b"></span>④ Shooting</a>
+      <a href="#goldCard"><span class="nav-dot" style="background:var(--gold)"></span>⑤ Race Scale</a>
     </nav>
   </div>
 
@@ -646,11 +647,30 @@
 
   <div class="waterline"></div>
 
+  <!-- ═══════════════ VIZ 4 SHOOTING ═══════════════ -->
+  <div class="viz-section reveal" id="shootingCard">
+    <div class="section-head">
+      <div class="section-badge">
+        <div class="section-num" style="background:linear-gradient(135deg,rgba(245,158,11,.22),rgba(245,158,11,.06));border-color:rgba(245,158,11,.34);color:#ffc766;">4</div>
+        <div class="section-label">Shooting</div>
+      </div>
+      <h2 class="section-title" id="shootingTitle">Shooting — replay and perspective duel</h2>
+      <p class="section-subtitle" id="shootingSubtitle">The default view replays USA and China shooting medals on separate targets year by year. Hit Play Game to switch the section into a harder one-target duel against an AI opponent from the other side.</p>
+    </div>
+
+    <div class="card card-gold">
+      <div id="shootingViz" class="viz"></div>
+      <p class="small" style="margin-top:12px;padding:0 4px">Event medals: team events counted once per event. Use the replay controls for comparison, or hit Play Game to swap into the shared-target duel.</p>
+    </div>
+  </div>
+
+  <div class="waterline"></div>
+
   <!-- ═══════════════ VIZ 4 RACE SCALES ═══════════════ -->
   <div class="viz-section reveal" id="goldCard">
     <div class="section-head">
       <div class="section-badge">
-        <div class="section-num" style="background:linear-gradient(135deg,rgba(240,192,64,.2),rgba(240,192,64,.06));border-color:rgba(240,192,64,.35);color:#f0c040;">4</div>
+        <div class="section-num" style="background:linear-gradient(135deg,rgba(240,192,64,.2),rgba(240,192,64,.06));border-color:rgba(240,192,64,.35);color:#f0c040;">5</div>
         <div class="section-label">Race Scale</div>
       </div>
       <h2 class="section-title" id="goldTitle">Gold &middot; Silver &middot; Bronze &mdash; Olympic Medal Race Over Time (USA vs CHN)</h2>
@@ -735,6 +755,7 @@
 <script src="viz1_dominance.js"></script>
 <script src="viz2_swimming.js"></script>
 <script src="viz3_diving.js"></script>
+<script src="viz7_shooting.js"></script>
 <script src="viz4_goldrace.js"></script>
 <script src="viz5_forgottenSports.js"></script>
 <script src="viz6_trivia.js"></script>
@@ -914,55 +935,33 @@
 
   const COPY = {
     usa:{
-        l1:"USA",
-        l2:"CHINA",
-        l1cls:"word-usa",
-        l2cls:"word-chn",
-
-        heroIntro:"For decades the United States dominated the Olympic medal table. In recent years, China's rapid rise has turned that dominance into a direct rivalry across total medals, swimming events, and diving competitions.",
-
-        heroHook:"What once looked like clear American dominance has evolved into one of the most compelling rivalries in modern Olympic history.",
-
-        chip0:"Historical Dominator",
-        chip1:"Rising Challenger",
-
-        rivalryTitle:"Where the rivalry becomes visible",
-
-        rivalryCopy:"The United States maintains a deep Olympic legacy, especially in swimming. China, however, dominates diving and continues to strengthen its presence in the pool, turning the Olympic medal race into a direct competition between the two nations.",
-
-        dominanceTitle:"USA Dominance Across Major Olympic Sports",
-
-        swimmingTitle:"Swimming — Olympic medals in the pool over time",
-
-        divingTitle:"Diving — Medal Flow Between China and the United States",
-
-        goldTitle:"Olympic Medal Race Over Time",
+      l1:'USA',l2:'CHINA',l1cls:'word-usa',l2cls:'word-chn',
+      heroIntro:'This story follows the shift from long US control to a rivalry that becomes measurable across overall medal scale, historical medal count, swimming pressure, diving strength, and shooting precision.',
+      heroHook:'One country sets the Olympic standard. The other rises fast enough to turn the story into a direct US-China contest.',
+      chip0:'Historical Dominator',chip1:'Rising Challenger',
+      rivalryTitle:'Where the rivalry becomes visible',
+      rivalryCopy:'The United States carries the broader medal machine and deep swimming history. China is especially forceful in diving, increasingly credible in the pool, and dangerous in shooting, turning the medal race into direct sport-by-sport pressure.',
+      dominanceTitle:"Medals — USA dominance, and who's closest each year",
+      aquaticsTitle:'Swimming & Diving — the USA still sets the pace in swimming',
+      swimmingTitle:'Swimming lanes — China catching up in the pool',
+      divingTitle:'Diving — medal flow as a wave (CHN above water, USA below)',
+      shootingTitle:'Shooting — replay and perspective duel',
+      goldTitle:'Gold, Silver, Bronze — race scale (USA vs CHN)',
     },
 
     china:{
-        l1:"CHINA",
-        l2:"USA",
-        l1cls:"word-chn",
-        l2cls:"word-usa",
-
-        heroIntro:"China's Olympic journey shows one of the fastest rises in modern sports history. From emerging competitor to global powerhouse, China now challenges the United States across medal counts, swimming performance, and diving dominance.",
-
-        heroHook:"China's rapid rise has transformed the Olympic Games into a direct rivalry with the United States on the world stage.",
-
-        chip0:"Rising Powerhouse",
-        chip1:"Defending Champion",
-
-        rivalryTitle:"Where China's rise becomes unmistakable",
-
-        rivalryCopy:"China's strength in diving remains unmatched, while its expanding success in swimming reflects a broader transformation. The Olympic medal race increasingly centers on direct competition between China and the United States.",
-
-        dominanceTitle:"China's Rise in Major Olympic Sports",
-
-        swimmingTitle:"Swimming — China's growing presence in the pool",
-
-        divingTitle:"Diving — China's dominance above the waterline",
-
-        goldTitle:"Olympic Medal Race Over Time",
+      l1:'CHINA',l2:'USA',l1cls:'word-chn',l2cls:'word-usa',
+      heroIntro:"This story follows China's remarkable rise from emerging competitor to Olympic powerhouse, challenging America's long-standing dominance across medal counts, swimming excellence, diving supremacy, and shooting precision.",
+      heroHook:"One country challenges the status quo. The other must defend its position as the rivalry intensifies across every Olympic stage.",
+      chip0:'Rising Powerhouse',chip1:'Defending Champion',
+      rivalryTitle:"Where China's rise becomes unmistakable",
+      rivalryCopy:"China's surge in diving is unmatched, its growing presence in the pool signals a broader shift, and its shooting results turn precision sports into another rivalry front. The medal race now runs through every sport where the two nations directly clash.",
+      dominanceTitle:"Medals — China's rise, closing on the leader",
+      aquaticsTitle:"Swimming & Diving — China dominates diving and keeps closing in",
+      swimmingTitle:"Swimming lanes — China's progress in the pool",
+      divingTitle:"Diving — China's dominance above the waterline",
+      shootingTitle:'Shooting — replay and perspective duel',
+      goldTitle:'Gold, Silver, Bronze — race scale (CHN vs USA)',
     },
   };
 
@@ -977,7 +976,7 @@
     set('heroChip0',c.chip0);     set('heroChip1',c.chip1);
     set('rivalryTitle',c.rivalryTitle); set('rivalryCopy',c.rivalryCopy);
     set('dominanceTitle',c.dominanceTitle); set('aquaticsTitle',c.aquaticsTitle); set('swimmingTitle',c.swimmingTitle);
-    set('divingTitle',c.divingTitle); set('goldTitle',c.goldTitle);
+    set('divingTitle',c.divingTitle); set('shootingTitle',c.shootingTitle); set('goldTitle',c.goldTitle);
   }
 
   function switchTo(p, skipAnim){

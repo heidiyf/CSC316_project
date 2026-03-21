@@ -103,6 +103,9 @@
       text: '2024: The balance is tight enough that each medal visibly shifts the scale.',
     },
   };
+
+  const FIRST_RIVALRY_YEAR = 1984;
+  const PRE_RIVALRY_SPEED_MULTIPLIER = 0.38;
   
   function getCssVar(name, fallback) {
     const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
@@ -132,6 +135,13 @@
   
   function milestoneForYear(year) {
     return STORY_MILESTONES[year] || null;
+  }
+
+  function autoplayStateForYear(year) {
+    const milestone = milestoneForYear(year);
+    if (milestone) return `Story pause ${year}`;
+    if (year < FIRST_RIVALRY_YEAR) return `Fast-forward to ${FIRST_RIVALRY_YEAR}`;
+    return 'Autoplay on';
   }
   
   function storyCaption(meta, year, leader, gap) {
@@ -593,7 +603,10 @@
   
     function pauseDelayForYear(year) {
       const milestone = milestoneForYear(year);
-      return autoplayDelay + (milestone ? milestone.pauseMs : 0);
+      const baseDelay = year < FIRST_RIVALRY_YEAR
+        ? Math.max(180, autoplayDelay * PRE_RIVALRY_SPEED_MULTIPLIER)
+        : autoplayDelay;
+      return baseDelay + (milestone ? milestone.pauseMs : 0);
     }
   
     function clearAutoplayTimer() {
@@ -728,8 +741,7 @@
       }
       update();
       const year = currentYear();
-      const milestone = milestoneForYear(year);
-      setPlayState(milestone ? `Story pause ${year}` : 'Autoplay on');
+      setPlayState(autoplayStateForYear(year));
       queueAutoplay(pauseDelayForYear(year));
     }
   
@@ -738,8 +750,7 @@
       isAutoplay = true;
       playPauseBtn.textContent = 'Pause';
       const year = currentYear();
-      const milestone = milestoneForYear(year);
-      setPlayState(milestone ? `Story pause ${year}` : 'Autoplay on');
+      setPlayState(autoplayStateForYear(year));
       queueAutoplay(pauseDelayForYear(year));
     }
   

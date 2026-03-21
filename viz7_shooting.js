@@ -202,7 +202,7 @@
     const style = document.createElement('style');
     style.id = 'shooting-viz-style';
     style.textContent = `
-      .shoot-shell{display:grid;gap:16px}
+      .shoot-shell{position:relative;display:grid;gap:16px}
       .shoot-toolbar{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;flex-wrap:wrap}
       .shoot-toolbar-left{display:grid;gap:12px;flex:1;min-width:280px}
       .shoot-slider-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
@@ -227,6 +227,13 @@
       .shoot-summary-pill{display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:14px;background:var(--accent-06);border:1px solid var(--accent-12);font-size:12px;color:var(--muted);line-height:1.5}
       .shoot-stage-frame{position:relative;border-radius:26px;background:radial-gradient(circle at 50% 0%,rgba(255,255,255,.09),transparent 45%),linear-gradient(180deg,rgba(9,18,35,.96),rgba(4,10,22,.98));border:1px solid rgba(255,255,255,.08);overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),0 24px 40px rgba(0,0,0,.24)}
       .shoot-stage-frame svg{display:block;width:100%;height:auto}
+      .shoot-sound-modal{position:absolute;inset:0;z-index:24;display:grid;place-items:center;padding:22px;border-radius:24px;background:rgba(3,10,24,0.74);backdrop-filter:blur(10px)}
+      .shoot-sound-modal[hidden]{display:none !important}
+      .shoot-sound-card{width:min(100%,460px);display:grid;gap:12px;padding:22px 22px 18px;border-radius:22px;background:linear-gradient(180deg,rgba(9,23,52,0.97),rgba(5,14,32,0.98));border:1px solid rgba(117,164,255,0.24);box-shadow:0 24px 60px rgba(0,0,0,0.38),inset 0 1px 0 rgba(255,255,255,0.08)}
+      .shoot-sound-kicker{font-size:10px;font-weight:900;letter-spacing:.2em;text-transform:uppercase;color:#9dc4ff}
+      .shoot-sound-title{font-family:'Playfair Display',Georgia,serif;font-size:23px;line-height:1.15;font-weight:800;color:#f7fbff}
+      .shoot-sound-copy{font-size:14px;line-height:1.7;color:#c7d8f0}
+      .shoot-sound-actions{display:flex;justify-content:flex-end}
       .shoot-inspector{display:grid;gap:6px;padding:14px 16px;border-radius:18px;background:var(--accent-06);border:1px solid var(--accent-12)}
       .shoot-inspector-title{font-size:15px;font-weight:800;color:var(--ink)}
       .shoot-inspector-copy{font-size:13px;line-height:1.65;color:var(--muted)}
@@ -381,6 +388,16 @@
 
     host.html(`
       <div class="shoot-shell">
+        <div id="shootSoundPrompt" class="shoot-sound-modal" hidden>
+          <div class="shoot-sound-card" role="dialog" aria-modal="true" aria-labelledby="shootSoundPromptTitle">
+            <div class="shoot-sound-kicker">Sound Reminder</div>
+            <div id="shootSoundPromptTitle" class="shoot-sound-title">This shooting section uses audio.</div>
+            <div class="shoot-sound-copy">If you're muted, please turn the volume up a bit here. If your volume is too high, please lower it before playing.</div>
+            <div class="shoot-sound-actions">
+              <button id="shootDismissSoundPromptBtn" class="race-btn" type="button">Okay, continue</button>
+            </div>
+          </div>
+        </div>
         <div id="shootReplayView" class="shoot-view">
           <div class="shoot-toolbar">
             <div class="shoot-toolbar-left">
@@ -412,10 +429,6 @@
           <div class="shoot-stage-frame">
             <svg id="shootStageSvg" viewBox="0 0 1120 640" aria-label="USA and China shooting medal replay"></svg>
           </div>
-          <div class="shoot-inspector">
-            <div id="shootInfoTitle" class="shoot-inspector-title"></div>
-            <div id="shootInfoBody" class="shoot-inspector-copy"></div>
-          </div>
         </div>
         <div id="shootGameView" class="shoot-view" hidden>
           <div class="shoot-duel-shell">
@@ -446,8 +459,8 @@
     const yearSlider = host.select('#shootYearSlider').node();
     const yearValue = host.select('#shootYearValue');
     const yearSummary = host.select('#shootYearSummary');
-    const infoTitle = host.select('#shootInfoTitle');
-    const infoBody = host.select('#shootInfoBody');
+    const soundPrompt = host.select('#shootSoundPrompt').node();
+    const dismissSoundPromptBtn = host.select('#shootDismissSoundPromptBtn').node();
     const svg = host.select('#shootStageSvg');
     const playPauseBtn = host.select('#shootPlayPauseBtn').node();
     const restartBtn = host.select('#shootRestartBtn').node();
@@ -475,6 +488,18 @@
     let duelAimFrame = 0;
     let duelAimPoint = { x: DUEL_TARGET.x, y: DUEL_TARGET.y };
     let shootMode = 'replay';
+    let soundPromptDismissed = false;
+
+    function showSoundPrompt() {
+      if (!soundPrompt || soundPromptDismissed) return;
+      soundPrompt.hidden = false;
+    }
+
+    function dismissSoundPrompt() {
+      if (!soundPrompt) return;
+      soundPrompt.hidden = true;
+      soundPromptDismissed = true;
+    }
 
     yearSlider.min = 0;
     yearSlider.max = Math.max(0, years.length - 1);
@@ -1478,24 +1503,6 @@
         `CHN ${totalCount(frame.chnCurrent)} hit${totalCount(frame.chnCurrent) === 1 ? '' : 's'} this year · ` +
         `cumulative totals update above each target`
       );
-
-      if (!frame.shots.length) {
-        infoTitle.text(`${frame.year} · No USA/CHN shooting medals`);
-        infoBody.html('This year has no USA or China shooting medals in the dataset, so the replay holds on the empty targets and only the cumulative counters remain visible.');
-        return;
-      }
-
-      const preview = frame.shots
-        .slice(0, 4)
-        .map(d => `${d.NOC} ${d.Medal} · ${escapeHtml(d.shortEvent)}`)
-        .join('<br>');
-
-      infoTitle.text(`${frame.year} · Medal hits replay`);
-      infoBody.html(`
-        <strong>${frame.shots.length}</strong> shooting medal hit${frame.shots.length === 1 ? '' : 's'} animate onto the two targets this year.
-        Gold hits the center ring, silver the middle ring, bronze the outer ring.<br><br>
-        ${preview}${frame.shots.length > 4 ? '<br>...' : ''}
-      `);
     }
 
     function renderYear(yearIndex, shouldAnimate = false) {
@@ -1579,6 +1586,8 @@
       resetDuelState(true);
     });
 
+    dismissSoundPromptBtn?.addEventListener('click', dismissSoundPrompt);
+
     if (host.node().__shootingPerspectiveHandler) {
       window.removeEventListener('perspectiveChange', host.node().__shootingPerspectiveHandler);
     }
@@ -1596,6 +1605,18 @@
     };
     host.node().__shootingPerspectiveHandler = perspectiveHandler;
     window.addEventListener('perspectiveChange', perspectiveHandler);
+
+    const shootingSection = document.getElementById('shootingCard');
+    if (shootingSection && soundPrompt) {
+      const soundPromptObserver = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (!entry.isIntersecting || soundPromptDismissed) return;
+          showSoundPrompt();
+          soundPromptObserver.disconnect();
+        });
+      }, { threshold: 0.35 });
+      soundPromptObserver.observe(shootingSection);
+    }
 
     renderYear(currentYearIndex, false);
     setShootMode('replay');

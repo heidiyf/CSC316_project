@@ -10,7 +10,7 @@
  *
  * Expected DOM IDs (single-page layout):
  *   #viz1  #yearSlider  #swimYearLabel  #gapText  #swimUSA  #swimCHN
- *   #divingFlow  #rivalYearSlider  #rivalYearLabel  #raceModeSummary
+ *   #divingFlow  #shootingViz  #rivalYearSlider  #rivalYearLabel  #raceModeSummary
  *   .gold-filter-btn  #viz4  #tooltip
  *   Perspective toggle: .perspective-btn  #heroTitle  #heroIntro  #heroHook
  *   #themeChip0  #themeChip1  #rivalryTitle  #rivalryCopy
@@ -169,6 +169,7 @@ Promise.all([
   renderDominance(data);
   renderSwimmingPools(data);
   renderDivingFlow(data);
+  if (typeof window.renderShootingGame === "function") window.renderShootingGame(data);
   if (typeof window.renderGoldRace === "function") window.renderGoldRace(data);
 }).catch(err => {
   console.error('[shared.js] Failed to load data:', err);

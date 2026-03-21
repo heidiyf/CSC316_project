@@ -78,8 +78,9 @@
     .perspective-flash.show{opacity:1}
 
     /* ── ACCORDION (3-D tabs) ── */
-    .acc-tab-strip-label{text-align:center;font-family:'Lora',serif;font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(100,160,255,.32);margin-bottom:8px;display:flex;align-items:center;gap:10px;justify-content:center}
-    .acc-tab-strip-label span{flex:1;height:1px;background:rgba(100,160,255,.09)}
+    .acc-tab-strip-label{text-align:center;font-family:'Lora',serif;font-size:11px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#d9f2ff;margin-bottom:14px;display:flex;align-items:center;gap:14px;justify-content:center;text-shadow:0 0 18px rgba(96,208,255,.28)}
+    .acc-tab-strip-label span{flex:1;max-width:120px;height:1px;background:linear-gradient(90deg,transparent,rgba(96,208,255,.45),transparent)}
+    .acc-tab-strip-copy{display:inline-flex;align-items:center;padding:8px 16px;border-radius:999px;background:linear-gradient(135deg,rgba(8,72,110,.42),rgba(4,42,72,.6));border:1px solid rgba(96,208,255,.28);box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 10px 24px rgba(3,24,45,.28)}
     .acc-tabs{display:flex;gap:10px;margin-bottom:0}
     .acc-tab{flex:1;appearance:none;border:none;border-radius:18px 18px 0 0;padding:20px 26px 22px;font-family:'Lora',Georgia,serif;font-size:14px;font-weight:600;cursor:pointer;text-align:left;line-height:1.35;transition:all .28s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden}
     .acc-tab[data-panel="swimmingCard"]{background:linear-gradient(145deg,#0e4a8a,#0a2d5e);color:rgba(120,200,255,.58);box-shadow:0 8px 0 #061a3a,0 10px 22px rgba(0,0,0,.38),inset 0 1px 0 rgba(100,180,255,.13)}
@@ -584,10 +585,10 @@
         <div class="section-num" style="background:linear-gradient(135deg,rgba(0,160,255,.25),rgba(0,200,255,.08));border-color:rgba(0,180,255,.3);color:#60d0ff;">~</div>
         <div class="section-label">Aquatics</div>
       </div>
-      <h2 class="section-title aqua-glow">Swimming &amp; Diving — where the rivalry runs deepest</h2>
+      <h2 class="section-title aqua-glow" id="aquaticsTitle">Swimming &amp; Diving — the USA still sets the pace</h2>
     </div>
 
-        <div class="acc-tab-strip-label"><span></span>Choose a lens to explore<span></span></div>
+        <div class="acc-tab-strip-label"><span aria-hidden="true"></span><strong class="acc-tab-strip-copy">Choose a lens to explore</strong><span aria-hidden="true"></span></div>
     <div class="acc-tabs" role="tablist">
       <button class="acc-tab is-active" data-panel="swimmingCard" role="tab" aria-selected="true">
         Swimming &mdash; Olympic medals in the pool over time
@@ -595,7 +596,7 @@
       </button>
       <button class="acc-tab" data-panel="divingCard" role="tab" aria-selected="false">
         Diving &mdash; medal flow as a wave
-        <div style="font-size:11px;font-weight:400;opacity:.62;margin-top:4px">CHN above water &middot; USA below &middot; custom cursor</div>
+        <div style="font-size:11px;font-weight:400;opacity:.62;margin-top:4px">CHN above water &middot; USA below</div>
       </button>
     </div>
 
@@ -975,7 +976,7 @@
     set('themeChip0',c.chip0);    set('themeChip1',c.chip1);
     set('heroChip0',c.chip0);     set('heroChip1',c.chip1);
     set('rivalryTitle',c.rivalryTitle); set('rivalryCopy',c.rivalryCopy);
-    set('dominanceTitle',c.dominanceTitle); set('swimmingTitle',c.swimmingTitle);
+    set('dominanceTitle',c.dominanceTitle); set('aquaticsTitle',c.aquaticsTitle); set('swimmingTitle',c.swimmingTitle);
     set('divingTitle',c.divingTitle); set('goldTitle',c.goldTitle);
   }
 

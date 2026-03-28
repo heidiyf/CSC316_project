@@ -76,7 +76,8 @@
     .perspective-float.visible{opacity:1;transform:translateY(0);pointer-events:all}
     .perspective-float-label{padding:8px 20px 6px;background:rgba(6,18,50,.96);font-family:'Lora',serif;font-size:9px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);text-align:center;border-bottom:1px solid rgba(100,160,255,.08)}
     .perspective-btn-row{display:flex}
-    .perspective-btn{appearance:none;border:0;padding:14px 24px;font-family:'Lora',Georgia,serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .28s;background:rgba(6,18,50,.96);color:rgba(255,255,255,.38);flex:1}
+    .perspective-btn{appearance:none;border:0;padding:12px 24px 14px;font-family:'Lora',Georgia,serif;font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .28s;background:rgba(6,18,50,.96);color:rgba(255,255,255,.38);flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+    .perspective-btn .pflag{font-size:22px;line-height:1}
     .perspective-btn:hover{color:rgba(255,255,255,.75)}
     .perspective-btn.usa-view.active{background:linear-gradient(135deg,rgba(26,108,255,.3),rgba(26,108,255,.16));color:#7ab4ff;box-shadow:inset 0 1px 0 rgba(100,180,255,.18)}
     .perspective-btn.china-view.active{background:linear-gradient(135deg,rgba(230,32,32,.3),rgba(230,32,32,.16));color:#ff8080;box-shadow:inset 0 1px 0 rgba(255,100,100,.18)}
@@ -467,8 +468,8 @@
 <div class="perspective-float">
   <div class="perspective-float-label">View As</div>
   <div class="perspective-btn-row">
-    <button class="perspective-btn usa-view active" data-perspective="usa" type="button">🇺🇸 USA</button>
-    <button class="perspective-btn china-view"      data-perspective="china" type="button">🇨🇳 China</button>
+    <button class="perspective-btn usa-view active" data-perspective="usa" type="button"><span class="pflag">🇺🇸</span>USA</button>
+    <button class="perspective-btn china-view"      data-perspective="china" type="button"><span class="pflag">🇨🇳</span>China</button>
   </div>
 </div>
 

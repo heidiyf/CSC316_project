@@ -463,7 +463,7 @@
         gM.append('g').attr('opacity', atCap ? 0.45 : 1)
           .attr('transform', `translate(${clamped},${cy})`)
           .append('image')
-            .attr('href', gifFile)
+            .attr('href', gifFile + '?t=' + Date.now())
             .attr('x', -HALFW).attr('y', -HALFH)
             .attr('width', SW).attr('height', SH)
             .attr('preserveAspectRatio','xMidYMid meet');
@@ -795,10 +795,11 @@
       const gSw=svg.append('g').attr('transform',animate?`translate(${sX},${y})`:`translate(${mX},${y})`);
       const raceSH = lH - 6, raceSW = raceSH * 3.8;
       gSw.append('image')
-        .attr('href', 'swimmer_USA_.gif')   // both swim left→right in this diagram
+        .attr('href', (noc === 'USA' ? 'swimmer_USA_.gif' : 'swimmer_CHN_.gif') + '?t=' + Date.now())
         .attr('x', -raceSW/2).attr('y', -raceSH/2)
         .attr('width', raceSW).attr('height', raceSH)
-        .attr('preserveAspectRatio','xMidYMid meet');
+        .attr('preserveAspectRatio','xMidYMid meet')
+        .attr('transform', noc !== 'USA' ? 'scale(-1, 1)' : null);
       gSw.append('text').attr('x',mX>fX-36?-raceSW/2-4:raceSW/2+4).attr('y',-raceSH/2-2).attr('text-anchor',mX>fX-36?'end':'start').attr('font-size',11).attr('font-weight',800).attr('fill','#e2e8f0').text(s.timeLabel);
       if(animate) gSw.transition().delay(i*160).duration(dur).ease(d3.easeCubicInOut)
         .attrTween('transform',()=>{const ix=d3.interpolateNumber(sX,mX); return t=>`translate(${ix(t)},${y+Math.sin(t*Math.PI*5)*1.6})`;});

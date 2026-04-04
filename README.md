@@ -2,6 +2,11 @@
 
 Interactive CSC316 final project exploring the Olympic rivalry between the United States and China through multiple D3-based visualizations.
 
+## Links
+
+- **Live Website:** https://heidiyf.github.io/CSC316_project/
+- **Screencast Video:** https://youtu.be/8eHo6aj_Fkw?si=FvosIFUOsrerbGN7
+
 ## Project Structure
 
 All JavaScript source files stay in the repository root.
@@ -73,6 +78,21 @@ http://localhost:8000
 ```
 
 You can also use VS Code Live Server if you prefer.
+
+## Libraries and External Resources
+
+**Our code** (all JavaScript visualization files and HTML/CSS):
+- `index.html` — page structure, layout, and all inline styles
+- `shared.js`, `sportpark.js`, `viz1_dominance.js` through `viz7_shooting.js` — all visualization logic written by the team
+
+**Third-party libraries** (loaded via CDN, not modified):
+- [D3.js v7](https://d3js.org/) — data-driven DOM manipulation and SVG rendering used across all visualizations
+- [Twemoji v14](https://github.com/twitter/twemoji) — renders flag and other emoji as images for cross-platform compatibility (Windows)
+- [Google Fonts](https://fonts.google.com/) — Bebas Neue, Playfair Display, Lora, and DM Sans typefaces
+
+**Data:**
+- `data/olympics_dataset.csv` — primary dataset (Olympic medal records, sourced externally and used as-is)
+- `data/olympics_dataset_cleaned.csv` — cleaned version kept for reference
 
 ## Notes
 
